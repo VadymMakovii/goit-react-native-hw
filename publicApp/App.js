@@ -6,11 +6,11 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
 } from "react-native";
-import RegistrationScreen from "./Screens/RegistrationScreen";
-import LoginScreen from "./Screens/LoginScreen";
+import RegistrationScreen from "./src/components/Screens/RegistrationScreen";
+import LoginScreen from "./src/components/Screens/LoginScreen";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import styles from "./App.styles";
+import styles from "./src/App.styles";
 
 SplashScreen.preventAutoHideAsync();
 

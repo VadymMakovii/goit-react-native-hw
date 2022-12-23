@@ -8,16 +8,18 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
+  Image,
 } from "react-native";
-
-import styles from "../App.styles";
+import AddBtn from '../AddBtn/AddBtn';
+import styles from "../../App.styles";
 
 const initialState = {
+  login: "",
   email: "",
   password: "",
 };
 
-const LoginScreen = ({
+const RegistrationScreen = ({
   changeScreen,
   keyboardStatus,
   setKeyboardStatus,
@@ -45,10 +47,25 @@ const LoginScreen = ({
     <TouchableWithoutFeedback onPress={() => keyboadrClose()}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" && "padding"}>
         <View style={styles.topContainer}>
-          <View style={{marginTop: 32}}>
-            <Text style={styles.headerTitle}>Sign in</Text>
+          <View style={styles.avatarPlaceholder}>
+            <Image />
+            <TouchableOpacity style={styles.addButton}>
+              <AddBtn/>
+            </TouchableOpacity>
+          </View>
+          <View style={{ marginTop: 92 }}>
+            <Text style={styles.headerTitle}>Create account</Text>
           </View>
           <View style={styles.form}>
+            <TextInput
+              style={styles.input}
+              placeholder="Login"
+              onChangeText={(value) =>
+                setState((prevState) => ({ ...prevState, login: value }))
+              }
+              value={state.login}
+              onFocus={() => !keyboardStatus && setKeyboardStatus(true)}
+            />
             <TextInput
               style={styles.input}
               placeholder="Email"
@@ -85,11 +102,11 @@ const LoginScreen = ({
                 activeOpacity={0.7}
                 onPress={() => formSubmitHandler()}
               >
-                <Text style={styles.buttonText}>SIGN IN</Text>
+                <Text style={styles.buttonText}>LOG IN</Text>
               </TouchableOpacity>
               <TouchableOpacity activeOpacity={0.5} onPress={changeScreen}>
                 <Text style={styles.authToogle}>
-                  Don't have an account? LOG IN
+                  Already have an account? SIGN IN
                 </Text>
               </TouchableOpacity>
             </View>
@@ -100,4 +117,4 @@ const LoginScreen = ({
   );
 };
 
-export default LoginScreen;
+export default RegistrationScreen;
