@@ -1,11 +1,7 @@
-import { useCallback, useState } from "react";
-import {
-  View,
-  ImageBackground,
-  Keyboard,
-  TouchableWithoutFeedback,
-  ActivityIndicator,
-} from "react-native";
+import { useCallback } from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
+import { View, ActivityIndicator } from "react-native";
 import RegistrationScreen from "./src/components/Screens/RegistrationScreen";
 import LoginScreen from "./src/components/Screens/LoginScreen";
 import { useFonts } from "expo-font";
@@ -14,9 +10,9 @@ import styles from "./src/App.styles";
 
 SplashScreen.preventAutoHideAsync();
 
+const AuthStack = createNativeStackNavigator();
+
 export default function App() {
-  const [authScreen, setAuthScreen] = useState(false);
-  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [fontsLoaded] = useFonts({
     "Roboto-Regular": require("./assets/fonts/Roboto-Regular.ttf"),
     "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
@@ -29,39 +25,18 @@ export default function App() {
     }
   }, [fontsLoaded]);
 
-  const keyboardDismiss = () => {
-    setIsShowKeyboard(false);
-    Keyboard.dismiss();
-  };
-
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#FF6C00" />;
   }
 
   return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
-      <TouchableWithoutFeedback onPress={() => keyboardDismiss()}>
-        <ImageBackground
-          style={styles.bgImage}
-          source={require("./assets/images/BG.jpg")}
-        >
-          {authScreen ? (
-            <LoginScreen
-              changeScreen={() => setAuthScreen(!authScreen)}
-              keyboardStatus={isShowKeyboard}
-              setKeyboardStatus={setIsShowKeyboard}
-              keyboadrClose={keyboardDismiss}
-            />
-          ) : (
-            <RegistrationScreen
-              changeScreen={() => setAuthScreen(!authScreen)}
-              keyboardStatus={isShowKeyboard}
-              setKeyboardStatus={setIsShowKeyboard}
-              keyboadrClose={keyboardDismiss}
-            />
-          )}
-        </ImageBackground>
-      </TouchableWithoutFeedback>
-    </View>
+    <NavigationContainer>
+      <View style={styles.container} onLayout={onLayoutRootView}>
+        <AuthStack.Navigator>
+          <AuthStack.Screen options={{headerShown: false}} name="Login" component={LoginScreen} />
+          <AuthStack.Screen options={{headerShown: false}} name="Registration" component={RegistrationScreen} />
+        </AuthStack.Navigator>
+      </View>
+    </NavigationContainer>
   );
 }

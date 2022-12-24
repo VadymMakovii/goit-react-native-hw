@@ -93,14 +93,29 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     color: "#FFFFFF",
   },
+
+  authToogleBox: {
+    marginBottom: 78,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  authToogleText: {
+    fontFamily: "Roboto-Regular",
+    fontWeight: "400",
+    fontSize: 16,
+    lineHeight: 19,
+    color: "#1B4371",
+    marginRight: 10,
+  },
   authToogle: {
     fontFamily: "Roboto-Regular",
     fontWeight: "400",
     fontSize: 16,
     lineHeight: 19,
     color: "#1B4371",
-    textAlign: "center",
-    marginBottom: 78,
+    textTransform: 'uppercase',
+    textDecorationLine: 'underline',
   },
 });
 
