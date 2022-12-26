@@ -8,19 +8,17 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
-  Image,
   ImageBackground,
 } from "react-native";
-import AddBtn from "../AddBtn/AddBtn";
-import styles from "../../App.styles";
+
+import styles from "../../../App.styles";
 
 const initialState = {
-  login: "",
   email: "",
   password: "",
 };
 
-const RegistrationScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation }) => {
   const [state, setState] = useState(initialState);
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
@@ -33,6 +31,7 @@ const RegistrationScreen = ({ navigation }) => {
   const formSubmitHandler = () => {
     console.log(state);
     setState(initialState);
+     navigation.navigate("Home");
   };
 
   useEffect(() => {
@@ -49,30 +48,15 @@ const RegistrationScreen = ({ navigation }) => {
     <TouchableWithoutFeedback onPress={() => keyboardDismiss()}>
       <ImageBackground
         style={styles.bgImage}
-        source={require("../../../assets/images/BG.jpg")}
+        source={require("../../../../assets/images/BG.jpg")}
       >
         <TouchableWithoutFeedback onPress={() => keyboardDismiss()}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" && "padding"}>
             <View style={styles.topContainer}>
-              <View style={styles.avatarPlaceholder}>
-                <Image />
-                <TouchableOpacity style={styles.addButton}>
-                  <AddBtn />
-                </TouchableOpacity>
-              </View>
-              <View style={{ marginTop: 92 }}>
-                <Text style={styles.headerTitle}>Create account</Text>
+              <View style={{ marginTop: 32 }}>
+                <Text style={styles.headerTitle}>Sign in</Text>
               </View>
               <View style={styles.form}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Login"
-                  onChangeText={(value) =>
-                    setState((prevState) => ({ ...prevState, login: value }))
-                  }
-                  value={state.login}
-                  onFocus={() => !isShowKeyboard && setIsShowKeyboard(true)}
-                />
                 <TextInput
                   style={styles.input}
                   placeholder="Email"
@@ -112,17 +96,17 @@ const RegistrationScreen = ({ navigation }) => {
                     activeOpacity={0.7}
                     onPress={() => formSubmitHandler()}
                   >
-                    <Text style={styles.buttonText}>LOG IN</Text>
+                    <Text style={styles.buttonText}>SIGN IN</Text>
                   </TouchableOpacity>
                   <View style={styles.authToogleBox}>
                     <Text style={styles.authToogleText}>
-                      Already have an account?
+                      Don't have an account?
                     </Text>
                     <TouchableOpacity
                       activeOpacity={0.5}
-                      onPress={() => navigation.navigate("Login")}
+                      onPress={() => navigation.navigate("Registration")}
                     >
-                      <Text style={styles.authToogle}>sign in</Text>
+                      <Text style={styles.authToogle}>log in</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -135,4 +119,4 @@ const RegistrationScreen = ({ navigation }) => {
   );
 };
 
-export default RegistrationScreen;
+export default LoginScreen;
