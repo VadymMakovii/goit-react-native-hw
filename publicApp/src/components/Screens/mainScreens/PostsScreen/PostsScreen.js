@@ -1,16 +1,41 @@
-import {
-  Text,
-  View,
-} from "react-native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Feather } from "@expo/vector-icons";
 
-import styles from "./PostsScreen.styles";
+import DefaultPostsScreen from "../../nestedScreens/DefaultPostsScreen";
+import MapScreen from "../../nestedScreens/MapScreen";
+import CommentsScreen from "../../nestedScreens/CommentsScreen";
 
-const PostsScreen = () => {
+
+const PostStack = createNativeStackNavigator();
+
+const PostsScreen = ({ navigation }) => {
   return (
-    <View style={styles.container}>
-      <Text style={{color: "tomato"}}>PostsScreen</Text>
-    </View>
+    <PostStack.Navigator initialRouteName="Default posts" screenOptions={{
+      headerTitleAlign: "center"}}>
+      <PostStack.Screen
+        name="Default posts"
+        component={DefaultPostsScreen}
+        options={{
+          title: "Posts",
+          headerRight: () => (
+            <Feather name="log-out" size={24} color="#BDBDBD" style={{ marginHorizontal: 16 }} onPress={() => (navigation.navigate("Login"))} />
+          ),}}
+      />
+      <PostStack.Screen
+        name="Map"
+        component={MapScreen}
+        options={{headerBackTitleVisible: false}}
+      />
+      <PostStack.Screen
+        name="Comments"
+        component={CommentsScreen}
+        options={{
+          headerBackTitleVisible: false,
+        }}
+      />
+    </PostStack.Navigator>
   );
 };
 
 export default PostsScreen;
+

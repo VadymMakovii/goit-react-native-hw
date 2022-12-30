@@ -4,9 +4,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
   },
-  camera: {
+  header: {
+    position: "absolute",
+    zIndex: 1,
+    top: 0,
+    width: "100%",
+    height: 90,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "flex-start ",
+    borderBottomWidth: 1,
+    borderBottomColor: "#BDBDBD30",
+    paddingBottom: 11,
+  },
+  headerTitle: {
+    fontFamily: "Roboto-Medium",
+    fontSize: 17,
+    lineHeight: 22,
+    color: "#212121",
+    marginLeft: 90,
+  },
+  imageBox: {
     height: 240,
     alignItems: "center",
     justifyContent: "center",
@@ -14,12 +34,17 @@ const styles = StyleSheet.create({
     marginTop: 32,
     borderRadius: 8,
     backgroundColor: "#F6F6F6",
-
+  },
+  image: {
+    width: "100%",
+    height: 240,
+    borderRadius: 8,
   },
   cameraBtn: {
+    position: "absolute",
     width: 60,
     height: 60,
-    backgroundColor: "#FFFFFF30", 
+    backgroundColor: "#FFFFFF30",
     borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
@@ -37,13 +62,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 19,
     color: "#BDBDBD",
-  },
-  preview: {
-    position: "absolute",
-    top: 20,
-    left: 20,
-    borderColor: "#fff",
-    borderWidth: 1,
   },
   form: {
     marginVertical: 24,
@@ -71,6 +89,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: 16,
+    marginBottom: 120,
   },
   buttonText: {
     fontFamily: "Roboto-Regular",
@@ -82,11 +101,9 @@ const styles = StyleSheet.create({
   },
   footer: {
     width: "100%",
-    bottom: 10,
-    marginTop: 100,
     alignItems: "center",
     justifyContent: "center",
-
+    marginBottom: 30,
   },
   deleteBtn: {
     width: 70,

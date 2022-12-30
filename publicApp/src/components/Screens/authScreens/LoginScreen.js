@@ -11,7 +11,7 @@ import {
   ImageBackground,
 } from "react-native";
 
-import styles from "../../../App.styles";
+import styles from "./AuthScreens.styles";
 
 const initialState = {
   email: "",
@@ -24,18 +24,18 @@ const LoginScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
   const keyboardDismiss = () => {
-    setIsShowKeyboard(false);
     Keyboard.dismiss();
+    setIsShowKeyboard(false);
   };
 
   const formSubmitHandler = () => {
     console.log(state);
     setState(initialState);
-     navigation.navigate("Home");
+    navigation.navigate("Home");
   };
 
   useEffect(() => {
-    Keyboard.scheduleLayoutAnimation({ duration: 300, easing: "easeIn" });
+    Keyboard.scheduleLayoutAnimation(Platform.OS === "ios" && { easing: "keyboard" });
     const keyboardHideHandler = Keyboard.addListener("keyboardDidHide", () =>
       keyboardDismiss()
     );
@@ -45,12 +45,12 @@ const LoginScreen = ({ navigation }) => {
   }, [isShowKeyboard]);
 
   return (
-    <TouchableWithoutFeedback onPress={() => keyboardDismiss()}>
+    <TouchableWithoutFeedback onPress={keyboardDismiss}>
       <ImageBackground
         style={styles.bgImage}
         source={require("../../../../assets/images/BG.jpg")}
       >
-        <TouchableWithoutFeedback onPress={() => keyboardDismiss()}>
+        <TouchableWithoutFeedback onPress={keyboardDismiss}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" && "padding"}>
             <View style={styles.topContainer}>
               <View style={{ marginTop: 32 }}>
@@ -89,28 +89,31 @@ const LoginScreen = ({ navigation }) => {
                   />
                 </View>
               </View>
-              {!isShowKeyboard && (
-                <View style={styles.bottomContainer}>
+
+              <View
+                style={
+                  !isShowKeyboard ? styles.bottomContainer : { display: "none" }
+                }
+              >
+                <TouchableOpacity
+                  style={styles.button}
+                  activeOpacity={0.7}
+                  onPress={() => formSubmitHandler()}
+                >
+                  <Text style={styles.buttonText}>SIGN IN</Text>
+                </TouchableOpacity>
+                <View style={styles.authToogleBox}>
+                  <Text style={styles.authToogleText}>
+                    Don't have an account?
+                  </Text>
                   <TouchableOpacity
-                    style={styles.button}
-                    activeOpacity={0.7}
-                    onPress={() => formSubmitHandler()}
+                    activeOpacity={0.5}
+                    onPress={() => navigation.navigate("Registration")}
                   >
-                    <Text style={styles.buttonText}>SIGN IN</Text>
+                    <Text style={styles.authToogle}>log in</Text>
                   </TouchableOpacity>
-                  <View style={styles.authToogleBox}>
-                    <Text style={styles.authToogleText}>
-                      Don't have an account?
-                    </Text>
-                    <TouchableOpacity
-                      activeOpacity={0.5}
-                      onPress={() => navigation.navigate("Registration")}
-                    >
-                      <Text style={styles.authToogle}>log in</Text>
-                    </TouchableOpacity>
-                  </View>
                 </View>
-              )}
+              </View>
             </View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>

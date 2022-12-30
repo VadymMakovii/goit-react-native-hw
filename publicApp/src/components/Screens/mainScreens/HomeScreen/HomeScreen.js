@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import ProfileScreen from "../ProfileScreen/ProfileScreen";
 import PostsScreen from "../PostsScreen/PostsScreen";
 import CreatePostsScreen from "../CreatePostsScreen/CreatePostsScreen";
@@ -10,6 +10,8 @@ const HomeScreen = ({navigation}) => {
   return (
     <MainTab.Navigator
       screenOptions={{
+        headerTitleAlign: "center",
+        tabBarHideOnKeyboard: true,
         tabBarStyle: {
           paddingTop: 9,
           justifyContent: "space-between",
@@ -29,11 +31,10 @@ const HomeScreen = ({navigation}) => {
         name="Posts"
         component={PostsScreen}
         options={{
-          headerRight: () => (
-            <MaterialIcons name="logout" size={24} color="#BDBDBD" style={{ marginHorizontal: 16 }} onPress={() => (navigation.navigate("Login"))} />
-          ),
+          headerShown: false,
+          tabBarStyle: { display: "none" },
           tabBarIcon: ({ size, color }) => (
-            <AntDesign name="appstore-o" size={size} color={color} />
+            <Feather name="grid" size={size} color={color} />
           ),
         }}
       />
@@ -41,11 +42,14 @@ const HomeScreen = ({navigation}) => {
         name="Create post"
         component={CreatePostsScreen}
         options={{
+          tabBarStyle: { display: "none" },
+          headerShown: false,
+          headerTransparent: false,
           headerLeft: () => (
-            <Feather name="arrow-left" size={24} color="#21212180" style={{ marginHorizontal: 16 }} />
+            <Feather name="arrow-left" size={24} color="#21212180" style={{ marginHorizontal: 16 }} onPress={() => (navigation.navigate("Home", {screen: "Posts"}))}/>
           ),
           tabBarIcon: ({ size, color }) => (
-            <AntDesign name="plus" size={size} color={color} />
+            <Feather name="plus" size={size} color={color} />
           ),
         }}
       />

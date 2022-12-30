@@ -12,7 +12,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { AntDesign  } from '@expo/vector-icons';
-import styles from "../../../App.styles";
+import styles from "./AuthScreens.styles";
 
 const initialState = {
   login: "",
@@ -26,8 +26,8 @@ const RegistrationScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
   const keyboardDismiss = () => {
-    setIsShowKeyboard(false);
     Keyboard.dismiss();
+    setIsShowKeyboard(false);
   };
 
   const formSubmitHandler = () => {
@@ -37,7 +37,7 @@ const RegistrationScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    Keyboard.scheduleLayoutAnimation({ duration: 300, easing: "easeIn" });
+    Keyboard.scheduleLayoutAnimation(Platform.OS === "ios" && { easing: "keyboard" });
     const keyboardHideHandler = Keyboard.addListener("keyboardDidHide", () =>
       keyboardDismiss()
     );
@@ -47,12 +47,12 @@ const RegistrationScreen = ({ navigation }) => {
   }, [isShowKeyboard]);
 
   return (
-    <TouchableWithoutFeedback onPress={() => keyboardDismiss()}>
+    <TouchableWithoutFeedback onPress={keyboardDismiss}>
       <ImageBackground
         style={styles.bgImage}
         source={require("../../../../assets/images/BG.jpg")}
       >
-        <TouchableWithoutFeedback onPress={() => keyboardDismiss()}>
+        <TouchableWithoutFeedback onPress={keyboardDismiss}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" && "padding"}>
             <View style={styles.topContainer}>
               <View style={styles.avatarPlaceholder}>
@@ -106,8 +106,8 @@ const RegistrationScreen = ({ navigation }) => {
                   />
                 </View>
               </View>
-              {!isShowKeyboard && (
-                <View style={styles.bottomContainer}>
+              
+                <View style={!isShowKeyboard ? styles.bottomContainer : {display: "none"}}>
                   <TouchableOpacity
                     style={styles.button}
                     activeOpacity={0.7}
@@ -127,7 +127,7 @@ const RegistrationScreen = ({ navigation }) => {
                     </TouchableOpacity>
                   </View>
                 </View>
-              )}
+              
             </View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>

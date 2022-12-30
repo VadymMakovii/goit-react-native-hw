@@ -3,8 +3,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { View, ActivityIndicator } from "react-native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import { StyleSheet } from "react-native";
 import useRoute from "./src/router";
-import styles from "./src/App.styles";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,3 +35,12 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+  },
+});
