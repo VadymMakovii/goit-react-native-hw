@@ -10,46 +10,26 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import * as db from "firebase/database";
 import { Feather } from "@expo/vector-icons";
 import styles from "./DefaultCreatePostScreen.styles";
+import { storage, database } from "../../../../../firebase/config";
+import { nanoid } from "nanoid";
+import { useAuth } from "../../../../hooks";
 
 const initialState = {
   title: "",
   location: "",
-  pictureURL: "",
   coordinate: {},
+  pictureURL: "",
 };
 
 const DefaultCreatePostScreen = ({ navigation, route }) => {
   const [state, setState] = useState(initialState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
-  useEffect(() => {
-    if (!route.params) {
-      return;
-    }
-    const { coordinate, pictureURL } = route.params?.state;
-    setState((prevState) => ({ ...prevState, pictureURL, coordinate }));
-  }, [route.params]);
-
-  const takePhoto = () => {
-    navigation.navigate("Camera");
-  };
-
-  const sendPost = () => {
-    navigation.navigate("Default posts", { state });
-  };
-
-  const keyboardDismiss = () => {
-    Keyboard.dismiss();
-    setIsShowKeyboard(false);
-  };
-
-  const formSubmitHandler = () => {
-    sendPost();
-    setState(initialState);
-  };
+  const { uid, userName } = useAuth();
 
   useEffect(() => {
     const keyboardHideHandler = Keyboard.addListener("keyboardDidHide", () =>
@@ -60,6 +40,66 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
     };
   }, [isShowKeyboard]);
 
+  useEffect(() => {
+    if (!route.params) {
+      return;
+    }
+    const { coordinate, pictureURL } = route.params?.state;
+    setState((prevState) => ({ ...prevState, coordinate, pictureURL }));
+  }, [route.params]);
+
+  const takePhoto = () => {
+    navigation.navigate("Camera");
+  };
+
+  const sendPost = async () => {
+    await uploadPostToServer();
+    navigation.navigate("Default posts");
+  };
+
+  const formSubmitHandler = () => {
+    sendPost();
+    setState(initialState);
+  };
+
+  const keyboardDismiss = () => {
+    Keyboard.dismiss();
+    setIsShowKeyboard(false);
+  };
+
+  const uploadPhotoToServer = async () => {
+    const uniquePostId = nanoid();
+    const imagesRef = ref(storage, `postImages/${uniquePostId}`);
+    const response = await fetch(state.pictureURL);
+    const file = await response.blob();
+    await uploadBytes(imagesRef, file);
+    const loadedPhoto = await getDownloadURL(imagesRef);
+    return loadedPhoto;
+  };
+
+  const uploadPostToServer = async () => {
+    const photo = await uploadPhotoToServer();
+    const { title, location, coordinate } = state;
+    const postData = {
+      userName: userName,
+      userId: uid,
+      title: title,
+      location: location,
+      coordinate: coordinate,
+      photo: photo,
+    };
+
+    const newPostKey = db.push(db.child(db.ref(database), "posts")).key;
+    const updates = {};
+    updates["/posts/" + newPostKey] = postData;
+    updates["/user-posts/" + uid + "/" + newPostKey] = postData;
+    db.update(db.ref(database), updates);
+  };
+
+  const deletePostData = () => {
+    setState(initialState);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={keyboardDismiss}>
       <View style={styles.container}>
@@ -69,14 +109,12 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
             size={24}
             color="#21212180"
             style={{ marginHorizontal: 16 }}
-            onPress={() => navigation.navigate("Home", { screen: "Posts" })}
+            onPress={() => navigation.navigate("Posts")}
           />
           <Text style={styles.headerTitle}>Create post</Text>
         </View>
         <View style={styles.imageBox}>
-          {state.pictureURL && (
-            <Image source={{ uri: state.pictureURL }} style={styles.image} />
-          )}
+          {state.pictureURL && <Image source={{ uri: state.pictureURL }} style={styles.image} />}
           <TouchableOpacity style={styles.cameraBtn} onPress={takePhoto}>
             <Feather name="camera" size={24} color="#BDBDBD" />
           </TouchableOpacity>
@@ -124,7 +162,7 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
         </TouchableOpacity>
 
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.deleteBtn} onPress={() => setState(initialState)}>
+          <TouchableOpacity style={styles.deleteBtn} onPress={deletePostData}>
             <Feather name="trash-2" size={24} color="#BDBDBD" />
           </TouchableOpacity>
         </View>

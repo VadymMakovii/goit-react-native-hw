@@ -6,8 +6,9 @@ import HomeScreen from "./components/Screens/mainScreens/HomeScreen/HomeScreen";
 
 const AuthStack = createNativeStackNavigator();
 
-const useRoute = () => {
-  return (
+const useRoute = (isLoggedIn) => {
+  if (!isLoggedIn) {
+    return (
     <AuthStack.Navigator initialRouteName="Login">
       <AuthStack.Screen
         options={{ headerShown: false }}
@@ -19,12 +20,11 @@ const useRoute = () => {
         name="Registration"
         component={RegistrationScreen}
       />
-      <AuthStack.Screen
-        options={{ headerShown: false }}
-        name="Home"
-        component={HomeScreen}
-      />
     </AuthStack.Navigator>
+  );
+  }
+  return (
+    <HomeScreen/>
   );
 };
 

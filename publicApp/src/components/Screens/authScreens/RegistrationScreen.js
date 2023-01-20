@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   Text,
   View,
@@ -11,7 +12,8 @@ import {
   Image,
   ImageBackground,
 } from "react-native";
-import { AntDesign  } from '@expo/vector-icons';
+import { AntDesign } from "@expo/vector-icons";
+import { createUser } from "../../../redux/auth/authOperations";
 import styles from "./AuthScreens.styles";
 
 const initialState = {
@@ -25,19 +27,22 @@ const RegistrationScreen = ({ navigation }) => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
+  const dispatch = useDispatch();
+
   const keyboardDismiss = () => {
     Keyboard.dismiss();
     setIsShowKeyboard(false);
   };
 
   const formSubmitHandler = () => {
-    console.log(state);
+    dispatch(createUser(state));
     setState(initialState);
-    navigation.navigate("Home");
   };
 
   useEffect(() => {
-    Keyboard.scheduleLayoutAnimation(Platform.OS === "ios" && { easing: "keyboard" });
+    Keyboard.scheduleLayoutAnimation(
+      Platform.OS === "ios" && { easing: "keyboard" }
+    );
     const keyboardHideHandler = Keyboard.addListener("keyboardDidHide", () =>
       keyboardDismiss()
     );
@@ -58,7 +63,7 @@ const RegistrationScreen = ({ navigation }) => {
               <View style={styles.avatarPlaceholder}>
                 <Image />
                 <TouchableOpacity style={styles.addButton}>
-                  <AntDesign  name="pluscircleo" size={25} color="#FF6C00" />
+                  <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
                 </TouchableOpacity>
               </View>
               <View style={{ marginTop: 92 }}>
@@ -106,28 +111,31 @@ const RegistrationScreen = ({ navigation }) => {
                   />
                 </View>
               </View>
-              
-                <View style={!isShowKeyboard ? styles.bottomContainer : {display: "none"}}>
+
+              <View
+                style={
+                  !isShowKeyboard ? styles.bottomContainer : { display: "none" }
+                }
+              >
+                <TouchableOpacity
+                  style={styles.button}
+                  activeOpacity={0.7}
+                  onPress={() => formSubmitHandler()}
+                >
+                  <Text style={styles.buttonText}>LOG IN</Text>
+                </TouchableOpacity>
+                <View style={styles.authToogleBox}>
+                  <Text style={styles.authToogleText}>
+                    Already have an account?
+                  </Text>
                   <TouchableOpacity
-                    style={styles.button}
-                    activeOpacity={0.7}
-                    onPress={() => formSubmitHandler()}
+                    activeOpacity={0.5}
+                    onPress={() => navigation.navigate("Login")}
                   >
-                    <Text style={styles.buttonText}>LOG IN</Text>
+                    <Text style={styles.authToogle}>sign in</Text>
                   </TouchableOpacity>
-                  <View style={styles.authToogleBox}>
-                    <Text style={styles.authToogleText}>
-                      Already have an account?
-                    </Text>
-                    <TouchableOpacity
-                      activeOpacity={0.5}
-                      onPress={() => navigation.navigate("Login")}
-                    >
-                      <Text style={styles.authToogle}>sign in</Text>
-                    </TouchableOpacity>
-                  </View>
                 </View>
-              
+              </View>
             </View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>

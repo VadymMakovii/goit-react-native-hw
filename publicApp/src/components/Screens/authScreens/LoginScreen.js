@@ -10,7 +10,8 @@ import {
   TouchableWithoutFeedback,
   ImageBackground,
 } from "react-native";
-
+import { useDispatch } from "react-redux";
+import { loginUser } from '../../../redux/auth/authOperations';
 import styles from "./AuthScreens.styles";
 
 const initialState = {
@@ -23,15 +24,16 @@ const LoginScreen = ({ navigation }) => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
+  const dispatch = useDispatch();
+
   const keyboardDismiss = () => {
     Keyboard.dismiss();
     setIsShowKeyboard(false);
   };
 
   const formSubmitHandler = () => {
-    console.log(state);
+    dispatch(loginUser(state));
     setState(initialState);
-    navigation.navigate("Home");
   };
 
   useEffect(() => {

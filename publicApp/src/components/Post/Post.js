@@ -5,17 +5,17 @@ import { Feather } from "@expo/vector-icons";
 export const Post = ({
   navigation,
   data: {
-    item: { title, location, pictureURL, coordinate },
+    item: { title, location, photo, coordinate },
   },
 }) => {
   return (
     <View style={styles.container}>
-      <Image source={{ uri: pictureURL }} style={styles.image} />
+      <Image source={{ url: photo }} style={styles.image} />
       <Text style={styles.title}>{title}</Text>
       <View style={styles.contentBox}>
         <View style={styles.commentsBox}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("Comments", { pictureURL })}
+            onPress={() => navigation.navigate("Comments", { photo })}
           >
             <Feather
               name="message-circle"
@@ -25,14 +25,15 @@ export const Post = ({
           </TouchableOpacity>
           <Text style={styles.commentsCounter}>0</Text>
         </View>
-        <View style={styles.locationBox}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Map", { coordinate })}
-          >
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Map", { coordinate })}
+        >
+          <View style={styles.locationBox}>
             <Feather name="map-pin" size={24} style={styles.mapIcon} />
-          </TouchableOpacity>
-          <Text style={styles.location}>{location}</Text>
-        </View>
+
+            <Text style={styles.location}>{location}</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

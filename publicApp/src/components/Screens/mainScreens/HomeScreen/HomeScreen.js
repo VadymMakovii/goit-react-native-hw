@@ -6,7 +6,7 @@ import CreatePostsScreen from "../CreatePostsScreen/CreatePostsScreen";
 
 const MainTab = createBottomTabNavigator();
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = () => {
   return (
     <MainTab.Navigator
       screenOptions={{
@@ -45,9 +45,6 @@ const HomeScreen = ({navigation}) => {
           tabBarStyle: { display: "none" },
           headerShown: false,
           headerTransparent: false,
-          headerLeft: () => (
-            <Feather name="arrow-left" size={24} color="#21212180" style={{ marginHorizontal: 16 }} onPress={() => (navigation.navigate("Home", {screen: "Posts"}))}/>
-          ),
           tabBarIcon: ({ size, color }) => (
             <Feather name="plus" size={size} color={color} />
           ),

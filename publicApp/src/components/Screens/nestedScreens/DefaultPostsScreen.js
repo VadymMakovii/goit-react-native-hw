@@ -2,15 +2,33 @@ import { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet } from "react-native";
 import { Post } from "../../Post/Post";
 import { Feather } from "@expo/vector-icons";
+import { ref, onValue } from "firebase/database";
+import { database } from "../../../../firebase/config";
+import { useAuth } from "../../../hooks";
 
-const PostsScreen = ({ navigation, route }) => {
+const PostsScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevstate) => [...prevstate, route.params.state]);
-    }
-  }, [route.params]);
+    getAllPosts();
+  }, []);
+
+  const { uid } = useAuth();
+
+  const getAllPosts = () => {
+    const postRef = ref(database, "/user-posts/" + uid);
+    
+    onValue(postRef, (snapshot) => {
+      const data = [];
+      snapshot.forEach((childSnapshot) => {
+        const key = childSnapshot.key;
+        const value = childSnapshot.val();
+        const obj = { postId: key, ...value };
+        data.push(obj);
+      });
+      setPosts(() => [...data]);
+    });
+  };
 
   return (
     <View style={styles.container}>

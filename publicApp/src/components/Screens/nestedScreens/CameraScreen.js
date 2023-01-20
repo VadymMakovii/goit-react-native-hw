@@ -3,6 +3,7 @@ import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import { useState } from "react";
 
+
 const CameraScreen = ({ navigation }) => {
   const [camera, setCamera] = useState(null);
   const [permission, requestPermission] = Camera.useCameraPermissions();

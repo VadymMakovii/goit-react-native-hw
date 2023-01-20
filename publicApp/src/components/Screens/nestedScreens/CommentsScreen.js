@@ -16,7 +16,7 @@ import { Feather } from "@expo/vector-icons";
 
 const CommentsScreen = ({
   route: {
-    params: { pictureURL },
+    params: { photo },
   },
 }) => {
   const [comments, setComments] = useState([]);
@@ -62,7 +62,7 @@ const CommentsScreen = ({
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
-          <Image source={{ uri: pictureURL }} style={styles.image} />
+          <Image source={{ url: photo }} style={styles.image} />
           <View style={{ flex: 1}}>
             <FlatList
               data={comments}

@@ -1,19 +1,36 @@
-import { View, Image, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 
 const LargePhotoScreen = ({ navigation, route }) => {
-  const { pictureURL } = route.params.state;
-  const state = route.params.state;
+  const [state, setState] = useState(null);
+
+  useEffect(() => {
+    setState({...route.params.state});
+  }, []);
+
+  const confirmPhoto = () => {
+    navigation.navigate("Default create posts", { state });
+    setState(null);
+  }; 
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: pictureURL }} style={styles.image} />
+      <Image source={{ uri: state?.pictureURL }} style={styles.image} />
+      <View style={styles.btnContainer}>
       <TouchableOpacity
-        style={styles.agreeBtn}
-        onPress={() => navigation.navigate("Default create posts", { state })}
+        style={styles.cancelBtn}
+        onPress={() => navigation.navigate("Camera")}
       >
-        <Feather name="check" size={40} color="#FF6C00" />
-      </TouchableOpacity>
+        <Feather name="delete" size={34} color="#FFFFFF" />
+        </TouchableOpacity>
+        <TouchableOpacity
+        style={styles.agreeBtn}
+        onPress={confirmPhoto}
+      >
+        <Feather name="check" size={34} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -30,13 +47,30 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  agreeBtn: {
+  btnContainer: {
     position: "absolute",
     bottom: 60,
-    left: 155,
+    left: 0,
+    width: '100%',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 40,
+    height: 60,
+  },
+  cancelBtn: {
     width: 60,
     height: 60,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFFFF50",
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  agreeBtn: {
+    width: 60,
+    height: 60,
+    backgroundColor: "#FFFFFF50",
     borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
