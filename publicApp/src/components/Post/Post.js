@@ -2,12 +2,9 @@ import { Text, View, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 
-export const Post = ({
-  navigation,
-  data: {
-    item: { title, location, photo, coordinate },
-  },
-}) => {
+export const Post = ({ navigation, data,}) => {
+  const commentsAmount = Object.keys(data.item.comments).length;
+  const { title, location, photo, coordinate, postId, userId } = data.item;
   return (
     <View style={styles.container}>
       <Image source={{ url: photo }} style={styles.image} />
@@ -15,7 +12,7 @@ export const Post = ({
       <View style={styles.contentBox}>
         <View style={styles.commentsBox}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("Comments", { photo })}
+            onPress={() => navigation.navigate("Comments", { photo, postId, userId })}
           >
             <Feather
               name="message-circle"
@@ -23,7 +20,7 @@ export const Post = ({
               style={styles.messageIcon}
             />
           </TouchableOpacity>
-          <Text style={styles.commentsCounter}>0</Text>
+          <Text style={styles.commentsCounter}>{commentsAmount}</Text>
         </View>
         <TouchableOpacity
           onPress={() => navigation.navigate("Map", { coordinate })}

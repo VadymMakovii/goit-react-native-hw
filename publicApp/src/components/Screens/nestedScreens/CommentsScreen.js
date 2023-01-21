@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -11,18 +11,38 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { ref, onValue, push, child, update } from "firebase/database";
+import { database } from "../../../../firebase/config";
+import { useAuth } from "../../../hooks";
 
-const CommentsScreen = ({
-  route: {
-    params: { photo },
-  },
-}) => {
+const CommentsScreen = ({ route }) => {
   const [comments, setComments] = useState([]);
   const [value, setValue] = useState("");
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const { photo, postId, userId } = route.params;
 
- const formSubmitHandler = () => {
+  const { userName } = useAuth();
+
+  useEffect(() => {
+    getAllComments();
+  }, []);
+
+  const keyboardDismiss = () => {
+    Keyboard.dismiss();
+    setIsShowKeyboard(false);
+  };
+
+  const formSubmitHandler = async () => {
+    await createComment();
+    keyboardDismiss();
+    setValue("");
+  };
+
+  const createComment = async () => {
     const date = new Date(Date.now());
     const options = {
       day: "2-digit",
@@ -32,14 +52,35 @@ const CommentsScreen = ({
       hour: "2-digit",
       minute: "2-digit",
     };
-    const comment = {
+    const postComment = {
+      userAvatar: "",
+      userName: userName,
+      userId: userId,
       content: value,
       commentTime: date.toLocaleString("en-US", options),
-      userAvatar: "",
-      userId: "",
     };
-    setComments((prevstate) => [...prevstate, comment]);
-    setValue("");
+    const newCommentKey = push(child(ref(database), "comments")).key;
+    const updates = {};
+    updates["/posts/" + postId + "/comments/" + newCommentKey] = postComment;
+    updates[
+      "/user-posts/" + userId + "/" + postId + "/comments/" + newCommentKey
+    ] = postComment;
+    await update(ref(database), updates);
+  };
+
+  const getAllComments = async () => {
+    const postRef = ref(database, "/posts/" + postId + "/comments/");
+
+    onValue(postRef, (snapshot) => {
+      const data = [];
+      snapshot.forEach((childSnapshot) => {
+        const key = childSnapshot.key;
+        const value = childSnapshot.val();
+        const obj = { commentId: key, ...value };
+        data.push(obj);
+      });
+      setComments(() => [...data]);
+    });
   };
 
   const Comment = ({ data }) => {
@@ -56,47 +97,54 @@ const CommentsScreen = ({
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.inner}>
-          <Image source={{ url: photo }} style={styles.image} />
-          <View style={{ flex: 1}}>
-            <FlatList
-              data={comments}
-              renderItem={(item) => <Comment data={item}/>}
-            keyExtractor={(item, indx) => indx.toString()}
-            />
-          </View>
-          <View style={styles.form }>
-            <TextInput
-              style={styles.input}
-              placeholder="Add comment..."
-              multiline
-              onChangeText={(value) => setValue(value)}
-              value={value}
-            />
-            <TouchableOpacity style={styles.button} onPress={formSubmitHandler}>
-              <Feather name="arrow-up" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-        </View>
+    <View style={styles.inner}>
+      <TouchableWithoutFeedback onPress={keyboardDismiss}>
+        <Image source={{ url: photo }} style={styles.image} />
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+      <SafeAreaView style={styles.listContainer}>
+        <FlatList
+          data={comments}
+          renderItem={(item) => <Comment data={item} />}
+          keyExtractor={(item) => item.commentId}
+        />
+      </SafeAreaView>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View
+          style={{
+            ...styles.form,
+            marginBottom: isShowKeyboard && Platform.OS === "ios" ? 100 : 0,
+          }}
+        >
+          <TextInput
+            style={styles.input}
+            placeholder="Add comment..."
+            multiline
+            onChangeText={(value) => setValue(value)}
+            value={value}
+            onFocus={() => !isShowKeyboard && setIsShowKeyboard(true)}
+            onBlur={keyboardDismiss}
+          />
+          <TouchableOpacity style={styles.button} onPress={formSubmitHandler}>
+            <Feather name="arrow-up" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
 export default CommentsScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  listContainer: {
     flex: 1,
+    marginTop: StatusBar.currentHeight || 0,
   },
   inner: {
-    paddingBottom: 32,
-    paddingTop: 32,
+    paddingBottom: 20,
+    paddingTop: 20,
     flex: 1,
     justifyContent: "flex-end",
   },
@@ -106,12 +154,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
     marginHorizontal: 16,
   },
-
   form: {
     width: 343,
     height: 50,
     marginHorizontal: 16,
-    marginBottom: 60,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",

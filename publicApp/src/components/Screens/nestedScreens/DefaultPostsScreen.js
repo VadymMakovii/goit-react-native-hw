@@ -35,7 +35,7 @@ const PostsScreen = ({ navigation }) => {
       <FlatList
         data={posts}
         renderItem={(item) => <Post data={item} navigation={navigation} />}
-        keyExtractor={(item, indx) => indx.toString()}
+        keyExtractor={item => item.postId}
       />
       <View style={styles.footer}>
         <View style={styles.item}>
