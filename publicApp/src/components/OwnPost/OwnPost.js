@@ -1,28 +1,13 @@
 import { Text, View, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-export const Post = ({ navigation, data }) => {
-  const commentsAmount = data.item.comments ? Object.keys(data.item.comments).length : 0;
-  const {
-    title,
-    location,
-    photo,
-    coordinate,
-    postId,
-    userId,
-    userAvatar,
-    userEmail,
-    userName,
-  } = data.item;
+export const OwnPost = ({ navigation, data, route }) => {
+  const commentsAmount = data.item.comments
+    ? Object.keys(data.item.comments).length
+    : 0;
+  const { title, location, photo, coordinate, postId, userId } = data.item;
   return (
     <View style={styles.container}>
-      <View style={styles.userBox}>
-        <Image source={{ url: userAvatar }} style={styles.avatar} />
-        <View style={styles.userData}>
-          <Text style={styles.userName}>{userName}</Text>
-          <Text style={styles.userEmail}>{userEmail}</Text>
-        </View>
-      </View>
       <TouchableOpacity
         activeOpacity={1}
         onPress={() => navigation.navigate("ReviewPhoto", { photo })}
@@ -34,7 +19,11 @@ export const Post = ({ navigation, data }) => {
         <View style={styles.commentsBox}>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate("Comments", { photo, postId, userId })
+              navigation.navigate("Comments", {
+                photo,
+                postId,
+                userId,
+              })
             }
           >
             <Feather
@@ -64,33 +53,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: 16,
     marginTop: 32,
-  },
-  userBox: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    marginRight: 8,
-  },
-  userData: {
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-  },
-  userName: {
-    fontFamily: "Roboto-Bold",
-    fontSize: 13,
-    lineHeight: 15,
-  },
-  userEmail: {
-    fontFamily: "Roboto-Regular",
-    fontSize: 11,
-    lineHeight: 13,
   },
   image: {
     height: 240,

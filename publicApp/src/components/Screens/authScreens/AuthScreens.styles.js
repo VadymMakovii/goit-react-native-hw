@@ -1,15 +1,18 @@
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-  },
   bgImage: {
     flex: 1,
     resizeMode: "cover",
     justifyContent: "flex-end",
+  },
+  loader: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 100,
   },
   topContainer: {
     backgroundColor: "#FFFFFF",
@@ -20,16 +23,24 @@ const styles = StyleSheet.create({
   avatarPlaceholder: {
     width: 120,
     height: 120,
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
     position: "absolute",
     top: -60,
-    left: 128,
+    left: "33%",
+  },
+  avatar: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 16,
   },
   addButton: {
     width: 25,
     height: 25,
     position: "absolute",
+    zIndex: 100,
     bottom: 12,
     right: -12,
   },

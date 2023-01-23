@@ -1,11 +1,12 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Feather } from "@expo/vector-icons";
-
 import DefaultPostsScreen from "../../nestedScreens/DefaultPostsScreen";
 import MapScreen from "../../nestedScreens/MapScreen";
+import ReviewPhotoScreen from "../../nestedScreens/ReviewPhotoScreen";
 import CommentsScreen from "../../nestedScreens/CommentsScreen";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../../../../redux/auth/authOperations";
+
 
 const PostStack = createNativeStackNavigator();
 
@@ -49,7 +50,7 @@ const PostsScreen = ({ navigation }) => {
               name="arrow-left"
               size={24}
               color="#21212180"
-              onPress={() => navigation.navigate("Default posts")}
+              onPress={() => navigation.goBack()}
             />
           ),
         }}
@@ -65,6 +66,21 @@ const PostsScreen = ({ navigation }) => {
               size={24}
               color="#21212180"
               onPress={() => navigation.navigate("Default posts")}
+            />
+          ),
+        }}
+      />
+      <PostStack.Screen
+        name="ReviewPhoto"
+        component={ReviewPhotoScreen}
+        options={{
+        title: "",
+        headerTransparent: true,
+        headerBackTitleVisible: false,
+        headerShown: true,
+          headerLeft: () => (
+            <Feather name="arrow-left" size={24} color="#FFFFFF"
+              onPress={() => navigation.goBack()}
             />
           ),
         }}

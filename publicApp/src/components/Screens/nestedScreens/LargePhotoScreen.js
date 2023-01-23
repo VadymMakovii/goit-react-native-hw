@@ -6,29 +6,26 @@ const LargePhotoScreen = ({ navigation, route }) => {
   const [state, setState] = useState(null);
 
   useEffect(() => {
-    setState({...route.params.state});
+    setState({ ...route.params.state });
   }, []);
 
   const confirmPhoto = () => {
     navigation.navigate("Default create posts", { state });
     setState(null);
-  }; 
+  };
 
   return (
     <View style={styles.container}>
       <Image source={{ uri: state?.pictureURL }} style={styles.image} />
       <View style={styles.btnContainer}>
-      <TouchableOpacity
-        style={styles.cancelBtn}
-        onPress={() => navigation.navigate("Camera")}
-      >
-        <Feather name="delete" size={34} color="#FFFFFF" />
-        </TouchableOpacity>
         <TouchableOpacity
-        style={styles.agreeBtn}
-        onPress={confirmPhoto}
-      >
-        <Feather name="check" size={34} color="#FFFFFF" />
+          style={styles.cancelBtn}
+          onPress={() => navigation.goBack()}
+        >
+          <Feather name="delete" size={34} color="#FFFFFF" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.agreeBtn} onPress={confirmPhoto}>
+          <Feather name="check" size={34} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     </View>
@@ -51,7 +48,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 60,
     left: 0,
-    width: '100%',
+    width: "100%",
     display: "flex",
     flexDirection: "row",
     alignItems: "center",

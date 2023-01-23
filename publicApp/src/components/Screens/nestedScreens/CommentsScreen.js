@@ -6,7 +6,6 @@ import {
   FlatList,
   Keyboard,
   TextInput,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
@@ -18,14 +17,17 @@ import { Feather } from "@expo/vector-icons";
 import { ref, onValue, push, child, update } from "firebase/database";
 import { database } from "../../../../firebase/config";
 import { useAuth } from "../../../hooks";
+import Loader from "../../Loader/Loader";
+import { Comment } from "../../../components/Comment/Comment";
 
 const CommentsScreen = ({ route }) => {
   const [comments, setComments] = useState([]);
   const [value, setValue] = useState("");
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-  const { photo, postId, userId } = route.params;
+  const [isLoading, setIsLoading] = useState(false);
+  const { photo, postId, userId} = route.params;
 
-  const { userName } = useAuth();
+  const { userName, avatar, uid } = useAuth();
 
   useEffect(() => {
     getAllComments();
@@ -53,9 +55,9 @@ const CommentsScreen = ({ route }) => {
       minute: "2-digit",
     };
     const postComment = {
-      userAvatar: "",
+      userAvatar: avatar,
       userName: userName,
-      userId: userId,
+      userId: uid,
       content: value,
       commentTime: date.toLocaleString("en-US", options),
     };
@@ -83,23 +85,18 @@ const CommentsScreen = ({ route }) => {
     });
   };
 
-  const Comment = ({ data }) => {
-    const { commentTime, content } = data.item;
-    return (
-      <View style={styles.commentBox}>
-        <View style={styles.contentBox}>
-          <Text style={styles.content}>{content}</Text>
-          <Text style={styles.commentTime}>{commentTime}</Text>
-        </View>
-        <Image style={styles.userAvatar} />
-      </View>
-    );
-  };
-
   return (
     <View style={styles.inner}>
       <TouchableWithoutFeedback onPress={keyboardDismiss}>
-        <Image source={{ url: photo }} style={styles.image} />
+        <View style={styles.imageBox}>
+          <Image
+            source={{ url: photo }}
+            style={styles.image}
+            onLoadStart={() => setIsLoading(true)}
+            onLoadEnd={() => setIsLoading(false)}
+          />
+          {isLoading && <Loader />}
+        </View>
       </TouchableWithoutFeedback>
       <SafeAreaView style={styles.listContainer}>
         <FlatList
@@ -147,12 +144,17 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     flex: 1,
     justifyContent: "flex-end",
+    backgroundColor: "#FFFFFF",
   },
-  image: {
+  imageBox: {
     height: 240,
     borderRadius: 8,
     backgroundColor: "#F6F6F6",
     marginHorizontal: 16,
+    overflow: "hidden",
+  },
+  image: {
+    flex: 1,
   },
   form: {
     width: 343,
@@ -182,42 +184,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: 8,
-  },
-
-  commentBox: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "flex-start",
-    marginTop: 24,
-    marginHorizontal: 16,
-  },
-  contentBox: {
-    backgroundColor: "#00000008",
-    padding: 16,
-    borderBottomLeftRadius: 6,
-    borderBottomRightRadius: 6,
-    borderTopLeftRadius: 6,
-    marginHorizontal: 16,
-  },
-  content: {
-    fontFamily: "Roboto-Regular",
-    fontWeight: "400",
-    fontSize: 13,
-    lineHeight: 18,
-    color: "#212121",
-    marginBottom: 8,
-  },
-  commentTime: {
-    fontFamily: "Roboto-Regular",
-    fontWeight: "400",
-    fontSize: 10,
-    lineHeight: 12,
-    color: "#BDBDBD",
-  },
-  userAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 100,
-    backgroundColor: "#E8E8E8",
   },
 });

@@ -29,7 +29,7 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
   const [state, setState] = useState(initialState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
-  const { uid, userName } = useAuth();
+  const { uid, userName, avatar, email } = useAuth();
 
   useEffect(() => {
     const keyboardHideHandler = Keyboard.addListener("keyboardDidHide", () =>
@@ -83,6 +83,8 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
     const postData = {
       userName: userName,
       userId: uid,
+      userAvatar: avatar,
+      userEmail: email,
       title: title,
       location: location,
       coordinate: coordinate,
@@ -109,12 +111,12 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
             size={24}
             color="#21212180"
             style={{ marginHorizontal: 16 }}
-            onPress={() => navigation.navigate("Posts")}
+            onPress={() => navigation.goBack()}
           />
           <Text style={styles.headerTitle}>Create post</Text>
         </View>
-        <View style={styles.imageBox}>
-          {state.pictureURL && <Image source={{ uri: state.pictureURL }} style={styles.image} />}
+        <View style={styles.imageBox} >
+          {state.pictureURL && <Image source={{ uri: state.pictureURL }} style={styles.image}/>}
           <TouchableOpacity style={styles.cameraBtn} onPress={takePhoto}>
             <Feather name="camera" size={24} color="#BDBDBD" />
           </TouchableOpacity>

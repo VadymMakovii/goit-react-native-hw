@@ -9,17 +9,18 @@ import { auth } from "../../../firebase/config";
 import { setUser, updateUser, logOutUser, setError } from "./authSlice";
 
 export const createUser =
-  ({ login, email, password }) =>
+  ({ login, email, password, photo }) =>
   async (dispatch, getState) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(auth.currentUser, { displayName: login });
+      await updateProfile(auth.currentUser, { displayName: login, photoURL: photo });
       const user = auth.currentUser;
       dispatch(
         setUser({
           email: user.email,
           uid: user.uid,
           userName: user.displayName,
+          avatar: user.photoURL,
         })
       );
     } catch (error) {
@@ -48,11 +49,12 @@ export const loginUser =
 export const refreshUser = () => async (dispatch) => {
   try {
     onAuthStateChanged(auth, (user) => {
+      console.log("USER", user)
       if (!user) {
         return;
       }
-      const { email, uid, displayName } = user;
-      dispatch(updateUser({ email, uid, userName: displayName }));
+      const { email, uid, displayName, photoURL } = user;
+      dispatch(updateUser({ email, uid, userName: displayName, avatar: photoURL }));
     });
   } catch (error) {
     dispatch(setError(error.message));

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, FlatList, StyleSheet } from "react-native";
+import { View, FlatList, StyleSheet, Image, Text } from "react-native";
 import { Post } from "../../Post/Post";
 import { Feather } from "@expo/vector-icons";
 import { ref, onValue } from "firebase/database";
@@ -13,11 +13,10 @@ const PostsScreen = ({ navigation }) => {
     getAllPosts();
   }, []);
 
-  const { uid } = useAuth();
-
+  const { userName, avatar, uid, email } = useAuth();
   const getAllPosts = () => {
-    const postRef = ref(database, "/user-posts/" + uid);
-    
+    const postRef = ref(database, "/posts/");
+
     onValue(postRef, (snapshot) => {
       const data = [];
       snapshot.forEach((childSnapshot) => {
@@ -32,11 +31,26 @@ const PostsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={posts}
-        renderItem={(item) => <Post data={item} navigation={navigation} />}
-        keyExtractor={item => item.postId}
-      />
+      {posts.length < 1 ? (
+        <View style={styles.welcomeBox}>
+          <View style={styles.userBox}>
+            <Image source={{ url: avatar }} style={styles.avatar} />
+            <View style={styles.userData}>
+              <Text style={styles.userName}>{userName}</Text>
+              <Text style={styles.userEmail}>{email}</Text>
+            </View>
+          </View>
+          <Text style={styles.title}>
+            Create your first post and share it with your friends!!!
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={posts}
+          renderItem={(item) => <Post data={item} navigation={navigation} />}
+          keyExtractor={(item) => item.postId}
+        />
+      )}
       <View style={styles.footer}>
         <View style={styles.item}>
           <Feather
@@ -75,6 +89,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     justifyContent: "center",
   },
+  welcomeBox: {
+    flex: 1,
+    paddingTop: 32,
+    paddingHorizontal: 16,
+    justifyContent: "flex-start",
+  },
   footer: {
     bottom: 0,
     width: "100%",
@@ -101,5 +121,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 20,
+  },
+  userBox: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    marginBottom: 32,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    marginRight: 8,
+    backgroundColor: "#BDBDBD50",
+  },
+  userData: {
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+  },
+  userName: {
+    fontFamily: "Roboto-Bold",
+    fontSize: 13,
+    lineHeight: 15,
+  },
+  userEmail: {
+    fontFamily: "Roboto-Regular",
+    fontSize: 11,
+    lineHeight: 13,
+  },
+  title: {
+    fontFamily: "Roboto-Bold",
+    fontSize: 18,
+    lineHeight: 30,
+    textAlign: "center",
   },
 });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef} from "react";
 import { useDispatch } from "react-redux";
 import {
   Text,
@@ -11,9 +11,15 @@ import {
   TouchableWithoutFeedback,
   Image,
   ImageBackground,
+  ActivityIndicator,
+  Animated,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import * as ImagePicker from 'expo-image-picker';
 import { createUser } from "../../../redux/auth/authOperations";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../../../firebase/config";
+import { nanoid } from "nanoid";
 import styles from "./AuthScreens.styles";
 
 const initialState = {
@@ -26,18 +32,17 @@ const RegistrationScreen = ({ navigation }) => {
   const [state, setState] = useState(initialState);
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const [image, setImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  const dispatch = useDispatch();
-
-  const keyboardDismiss = () => {
-    Keyboard.dismiss();
-    setIsShowKeyboard(false);
-  };
-
-  const formSubmitHandler = () => {
-    dispatch(createUser(state));
-    setState(initialState);
-  };
+  useEffect(() => {
+   isLoading && Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  }, [isLoading]);
 
   useEffect(() => {
     Keyboard.scheduleLayoutAnimation(
@@ -51,18 +56,61 @@ const RegistrationScreen = ({ navigation }) => {
     };
   }, [isShowKeyboard]);
 
+  const dispatch = useDispatch();
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.1,
+    });
+    !result.canceled && setImage(result.assets[0].uri);
+  };
+
+  const uploadPhotoToServer = async () => {
+    const uniqueAvatarId = nanoid();
+    const imagesRef = ref(storage, `usersAvatar/${uniqueAvatarId}`);
+    const response = await fetch(image);
+    const file = await response.blob();
+    await uploadBytes(imagesRef, file);
+    const loadedPhoto = await getDownloadURL(imagesRef);
+    return loadedPhoto;
+  };
+
+  const keyboardDismiss = () => {
+    Keyboard.dismiss();
+    setIsShowKeyboard(false);
+  };
+
+  const formSubmitHandler = async () => {
+    try {
+      setIsLoading(true);
+      const photo = await uploadPhotoToServer();
+      dispatch(createUser({ ...state, photo }));
+      setState(initialState);
+      setImage(null);
+    } catch (error) {
+      console.log(error.message)
+    }
+    setIsLoading(false);
+  };
+
+
   return (
     <TouchableWithoutFeedback onPress={keyboardDismiss}>
       <ImageBackground
         style={styles.bgImage}
         source={require("../../../../assets/images/BG.jpg")}
-      >
+      >{isLoading && (<View style={styles.loader}>
+        <ActivityIndicator size="large" color="#FF6C00" />
+      </View>)}
         <TouchableWithoutFeedback onPress={keyboardDismiss}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" && "padding"}>
-            <View style={styles.topContainer}>
+            <Animated.View style={{ ...styles.topContainer, opacity: fadeAnim, }}>
               <View style={styles.avatarPlaceholder}>
-                <Image />
-                <TouchableOpacity style={styles.addButton}>
+                {image && <Image source={{ uri: image }} style={styles.avatar}/>}
+                <TouchableOpacity style={styles.addButton} onPress={pickImage}>
                   <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
                 </TouchableOpacity>
               </View>
@@ -136,7 +184,7 @@ const RegistrationScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
               </View>
-            </View>
+            </Animated.View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </ImageBackground>
