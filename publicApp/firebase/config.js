@@ -4,13 +4,13 @@ import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBvMH-oEMpWflSfLpr8y0Cp00etDW8Rvr0",
-  authDomain: "publicview-fb560.firebaseapp.com",
-  databaseURL: "https://publicview-fb560-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "publicview-fb560",
-  storageBucket: "publicview-fb560.appspot.com",
-  messagingSenderId: "69220579477",
-  appId: "1:69220579477:web:bb19954dc47525d508839c"
+  apiKey: "AIzaSyCqq06Ko0d839Fe85-jHmKM-ct2mxwcK5M",
+  authDomain: "publicviewapp.firebaseapp.com",
+  databaseURL: "https://publicviewapp-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "publicviewapp",
+  storageBucket: "publicviewapp.appspot.com",
+  messagingSenderId: "17843230644",
+  appId: "1:17843230644:web:1a2ab891f32c299ada44e1"
 };
 
 const app = initializeApp(firebaseConfig);

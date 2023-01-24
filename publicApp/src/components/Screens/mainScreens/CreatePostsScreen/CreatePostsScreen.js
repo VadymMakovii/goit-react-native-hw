@@ -7,7 +7,7 @@ import { Feather } from "@expo/vector-icons";
 
 const PostStack = createNativeStackNavigator();
 
-const CreatePostsScreen = ({navigation}) => {
+const CreatePostsScreen = ({ navigation }) => {
   return (
     <PostStack.Navigator initialRouteName="Default create posts" screenOptions={{
       headerTitleAlign: "center"}}>

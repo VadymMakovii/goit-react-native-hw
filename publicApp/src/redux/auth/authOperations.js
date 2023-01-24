@@ -49,7 +49,6 @@ export const loginUser =
 export const refreshUser = () => async (dispatch) => {
   try {
     onAuthStateChanged(auth, (user) => {
-      console.log("USER", user)
       if (!user) {
         return;
       }

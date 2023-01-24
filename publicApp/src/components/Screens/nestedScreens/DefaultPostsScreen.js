@@ -5,6 +5,7 @@ import { Feather } from "@expo/vector-icons";
 import { ref, onValue } from "firebase/database";
 import { database } from "../../../../firebase/config";
 import { useAuth } from "../../../hooks";
+import {UserCard} from "../../UserCard/UserCard";
 
 const PostsScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
@@ -13,7 +14,7 @@ const PostsScreen = ({ navigation }) => {
     getAllPosts();
   }, []);
 
-  const { userName, avatar, uid, email } = useAuth();
+  const { userName, avatar, email } = useAuth();
   const getAllPosts = () => {
     const postRef = ref(database, "/posts/");
 
@@ -47,7 +48,7 @@ const PostsScreen = ({ navigation }) => {
       ) : (
         <FlatList
           data={posts}
-          renderItem={(item) => <Post data={item} navigation={navigation} />}
+          renderItem={(item) => (<Post data={item} navigation={navigation}><UserCard data={item} /></Post>)}
           keyExtractor={(item) => item.postId}
         />
       )}

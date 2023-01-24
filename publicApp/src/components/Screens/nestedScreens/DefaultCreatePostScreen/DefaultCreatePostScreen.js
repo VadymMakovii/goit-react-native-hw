@@ -9,14 +9,17 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
 } from "react-native";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as db from "firebase/database";
-import { Feather } from "@expo/vector-icons";
-import styles from "./DefaultCreatePostScreen.styles";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { storage, database } from "../../../../../firebase/config";
 import { nanoid } from "nanoid";
 import { useAuth } from "../../../../hooks";
+import { ReviewPhoto } from "../../../ReviewPhoto/ReviewPhoto";
+import styles from "./DefaultCreatePostScreen.styles";
 
 const initialState = {
   title: "",
@@ -28,8 +31,12 @@ const initialState = {
 const DefaultCreatePostScreen = ({ navigation, route }) => {
   const [state, setState] = useState(initialState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { uid, userName, avatar, email } = useAuth();
+
+  const modalShowHandler = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   useEffect(() => {
     const keyboardHideHandler = Keyboard.addListener("keyboardDidHide", () =>
@@ -47,6 +54,20 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
     const { coordinate, pictureURL } = route.params?.state;
     setState((prevState) => ({ ...prevState, coordinate, pictureURL }));
   }, [route.params]);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.1,
+    });
+    !result.canceled &&
+      setState((prevState) => ({
+        ...prevState,
+        pictureURL: result.assets[0].uri,
+      }));
+  };
 
   const takePhoto = () => {
     navigation.navigate("Camera");
@@ -115,15 +136,38 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
           />
           <Text style={styles.headerTitle}>Create post</Text>
         </View>
-        <View style={styles.imageBox} >
-          {state.pictureURL && <Image source={{ uri: state.pictureURL }} style={styles.image}/>}
-          <TouchableOpacity style={styles.cameraBtn} onPress={takePhoto}>
-            <Feather name="camera" size={24} color="#BDBDBD" />
+        <View style={styles.imageBox}>
+          {state.pictureURL && (
+            <Pressable style={styles.image} onPress={modalShowHandler}>
+              <Image
+                source={{ uri: state.pictureURL }}
+                style={styles.image}
+                resizeMode={"cover"}
+              />
+              <ReviewPhoto
+                data={{ uri: state.pictureURL }}
+                onClick={modalShowHandler}
+                visible={isModalOpen}
+              />
+            </Pressable>
+          )}
+          <TouchableOpacity
+            style={{
+              ...styles.cameraBtn,
+              backgroundColor: state.pictureURL ? "#FFFFFF30" : "#FFFFFF",
+            }}
+            onPress={takePhoto}
+          >
+            <Ionicons
+              name="camera"
+              size={24}
+              color={state.pictureURL ? "#FFFFFF" : "#BDBDBD"}
+            />
           </TouchableOpacity>
         </View>
 
         <View style={styles.addPhoto}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={pickImage}>
             <Text style={styles.addPhotoText}>Add photo</Text>
           </TouchableOpacity>
         </View>

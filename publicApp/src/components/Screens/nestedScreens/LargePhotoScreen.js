@@ -14,6 +14,7 @@ const LargePhotoScreen = ({ navigation, route }) => {
     setState(null);
   };
 
+
   return (
     <View style={styles.container}>
       <Image source={{ uri: state?.pictureURL }} style={styles.image} />
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
   },
   btnContainer: {
     position: "absolute",
-    bottom: 60,
+    bottom: 0,
     left: 0,
     width: "100%",
     display: "flex",
@@ -54,12 +55,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 40,
-    height: 60,
+    height: 100,
+    backgroundColor: "#00000080"
   },
   cancelBtn: {
     width: 60,
     height: 60,
-    backgroundColor: "#FFFFFF50",
     borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
@@ -67,7 +68,6 @@ const styles = StyleSheet.create({
   agreeBtn: {
     width: 60,
     height: 60,
-    backgroundColor: "#FFFFFF50",
     borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
