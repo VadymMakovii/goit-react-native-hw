@@ -8,7 +8,9 @@
   "expo": {
     "name": "Photo Hub",
     "slug": "photo-hub",
+    "owner": "vadymmakovii",
     "version": "1.0.0",
+    "privacy": "public",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,7 +24,7 @@
         "expo-image-picker",
         {
           "photosPermission": "Allow $(name) to access your photos",
-          "cameraPermission": "Allow $(name) to access your camera",
+          "cameraPermission": "Allow to access your camera",
           "//": "Disables the microphone permission",
           "microphonePermission": false
         }

@@ -1,25 +1,37 @@
 import { TouchableOpacity, View, StyleSheet } from "react-native";
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const CameraScreen = ({ navigation }) => {
   const [camera, setCamera] = useState(null);
-  const [permission, requestPermission] = Camera.useCameraPermissions();
   const [status, requestLocationPermission] =
     Location.useForegroundPermissions();
+  const [hasCameraPermission, setHasCameraPermission] = useState(false);
+
+  const getPermission = async () => {
+    if (!hasCameraPermission) {
+      try {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        console.log("status camera", status);
+        setHasCameraPermission(status === "granted");
+      } catch (error) {
+        console.log("error", error);
+      }
+    }
+    if (!status) {
+      requestLocationPermission();
+    }
+  };
+
+  useEffect(() => {
+    getPermission();
+  }, []);
 
   const takePhoto = async () => {
-    await requestPermission();
-    if (!permission.granted) {
-      throw new Error("Need camera permission");
-    }
     const photo = await camera.takePictureAsync();
-    await requestLocationPermission();
-    if (!status.granted) {
-      throw new Error("Need location permission");
-    }
     const location = await Location.getCurrentPositionAsync();
+
     const coordinate = {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
@@ -34,7 +46,14 @@ const CameraScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} ref={setCamera} onCameraReady={() => {}}>
+      <Camera
+        style={styles.camera}
+        flashMode="auto"
+        autoFocus="on"
+        focusDepth="0.5"
+        type="back"
+        ref={setCamera}
+      >
         <TouchableOpacity style={styles.cameraBtn} onPress={takePhoto}>
           <View style={styles.entryBtn}></View>
         </TouchableOpacity>
@@ -48,7 +67,7 @@ export default CameraScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     justifyContent: "flex-end",
   },
   camera: {
