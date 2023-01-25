@@ -6,8 +6,8 @@
     "src"
   ],
   "expo": {
-    "name": "publicApp",
-    "slug": "publicApp",
+    "name": "Photo Hub",
+    "slug": "photo-hub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,8 +21,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "photosPermission": "Allow $(name) to access your photos",
+          "cameraPermission": "Allow $(name) to access your camera",
           "//": "Disables the microphone permission",
           "microphonePermission": false
         }

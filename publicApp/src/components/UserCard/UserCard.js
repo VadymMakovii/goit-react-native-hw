@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 16,
     marginRight: 8,
+    backgroundColor: "#F6F6F6",
   },
   userData: {
     flexDirection: "column",
