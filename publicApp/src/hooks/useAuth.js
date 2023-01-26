@@ -4,8 +4,6 @@ import {
   selectEmail,
   selectUid,
   selectUserAvatar,
-  selectStateChange,
-  selectIsRefreshing,
   selectIsLoggedIn,
   selectError,
 } from "../redux/auth/authSelectors";
@@ -17,7 +15,6 @@ export const useAuth = () => {
     uid: useSelector(selectUid),
     avatar: useSelector(selectUserAvatar),
     isLoggedIn: useSelector(selectIsLoggedIn),
-    isRefreshing: useSelector(selectIsRefreshing),
     error: useSelector(selectError),
   };
 };

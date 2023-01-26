@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "flex-start ",
-    backgroundColor: "#21212170",
+    backgroundColor: "#21212190",
     paddingBottom: 20,
   },
 });

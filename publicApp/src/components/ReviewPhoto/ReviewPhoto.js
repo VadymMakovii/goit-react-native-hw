@@ -1,8 +1,7 @@
 import { View, Image, StyleSheet, Modal } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
-import Loader from "../Loader/Loader";
-
+import Loader from "../Loader/ContentLoader";
 
 export const ReviewPhoto = ({ data, onClick, visible}) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +51,7 @@ export const ReviewPhoto = ({ data, onClick, visible}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#000000",
     justifyContent: "center",
   },
   header: {

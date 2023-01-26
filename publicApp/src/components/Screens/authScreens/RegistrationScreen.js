@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef} from "react";
+import { useEffect, useState} from "react";
 import { useDispatch } from "react-redux";
 import {
   Text,
@@ -11,15 +11,16 @@ import {
   TouchableWithoutFeedback,
   Image,
   ImageBackground,
-  ActivityIndicator,
-  Animated,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
 import { createUser } from "../../../redux/auth/authOperations";
+import {setError} from "../../../redux/auth/authSlice";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../../firebase/config";
 import { nanoid } from "nanoid";
+import { useAlert } from "../../../hooks";
+import { Loader } from "../../Loader/Loader";
 import styles from "./AuthScreens.styles";
 
 const initialState = {
@@ -34,15 +35,6 @@ const RegistrationScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [image, setImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-   isLoading && Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 250,
-      useNativeDriver: true,
-    }).start();
-  }, [isLoading]);
 
   useEffect(() => {
     Keyboard.scheduleLayoutAnimation(
@@ -69,6 +61,10 @@ const RegistrationScreen = ({ navigation }) => {
   };
 
   const uploadPhotoToServer = async () => {
+    if (!image) {
+      return
+    }
+    try {
     const uniqueAvatarId = nanoid();
     const imagesRef = ref(storage, `usersAvatar/${uniqueAvatarId}`);
     const response = await fetch(image);
@@ -76,6 +72,10 @@ const RegistrationScreen = ({ navigation }) => {
     await uploadBytes(imagesRef, file);
     const loadedPhoto = await getDownloadURL(imagesRef);
     return loadedPhoto;
+    } catch (error) {
+      dispatch(setError(error.message));
+      useAlert("Your avatar has not been uploaded. You can add a new avatar on your profile page at any time");
+    }
   };
 
   const keyboardDismiss = () => {
@@ -84,30 +84,23 @@ const RegistrationScreen = ({ navigation }) => {
   };
 
   const formSubmitHandler = async () => {
-    try {
-      setIsLoading(true);
-      const photo = await uploadPhotoToServer();
-      dispatch(createUser({ ...state, photo }));
-      setState(initialState);
-      setImage(null);
-    } catch (error) {
-      console.log(error.message)
-    }
+    setIsLoading(true);
+    const photo = await uploadPhotoToServer();
+    dispatch(createUser({ ...state, photo }));
+    setState(initialState);
+    setImage(null);
     setIsLoading(false);
   };
-
 
   return (
     <TouchableWithoutFeedback onPress={keyboardDismiss}>
       <ImageBackground
         style={styles.bgImage}
         source={require("../../../../assets/images/BG.jpg")}
-      >{isLoading && (<View style={styles.loader}>
-        <ActivityIndicator size="large" color="#FF6C00" />
-      </View>)}
+      >{isLoading && <Loader loading={isLoading} />}
         <TouchableWithoutFeedback onPress={keyboardDismiss}>
           <KeyboardAvoidingView behavior={Platform.OS === "ios" && "padding"}>
-            <Animated.View style={{ ...styles.topContainer, opacity: fadeAnim, }}>
+            <View style={styles.topContainer}>
               <View style={styles.avatarPlaceholder}>
                 {image && <Image source={{ uri: image }} style={styles.avatar}/>}
                 <TouchableOpacity style={styles.addButton} onPress={pickImage}>
@@ -184,7 +177,7 @@ const RegistrationScreen = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
               </View>
-            </Animated.View>
+            </View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </ImageBackground>

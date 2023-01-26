@@ -7,6 +7,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../../../firebase/config";
 import { setUser, updateUser, logOutUser, setError } from "./authSlice";
+import { useAlert } from "../../hooks";
 
 export const createUser =
   ({ login, email, password, photo }) =>
@@ -25,6 +26,7 @@ export const createUser =
       );
     } catch (error) {
       dispatch(setError(error.message));
+      useAlert(error.message);
     }
   };
 
@@ -43,6 +45,7 @@ export const loginUser =
       );
     } catch (error) {
       dispatch(setError(error.message));
+      useAlert(error.message);
     }
   };
 
@@ -57,10 +60,15 @@ export const refreshUser = () => async (dispatch) => {
     });
   } catch (error) {
     dispatch(setError(error.message));
+    useAlert(error.message);
   }
 };
 
-export const logoutUser = () => async (dispatch, getState) => {
+export const logoutUser = () => async (dispatch, getState) => { try {
   signOut(auth);
   dispatch(logOutUser());
+} catch (error) {
+  dispatch(setError(error.message));
+  useAlert(error.message);
+}
 };

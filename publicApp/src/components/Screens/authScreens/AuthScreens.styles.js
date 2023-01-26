@@ -6,14 +6,6 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     justifyContent: "flex-end",
   },
-  loader: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 100,
-  },
   topContainer: {
     backgroundColor: "#FFFFFF",
     borderTopEndRadius: 25,
@@ -40,7 +32,7 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     position: "absolute",
-    zIndex: 100,
+    zIndex: 1,
     bottom: 12,
     right: -12,
   },
@@ -85,7 +77,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: "35%",
     right: 32,
-    zIndex: 100,
+    zIndex: 1,
   },
   button: {
     height: 51,

@@ -17,7 +17,7 @@ import { Feather } from "@expo/vector-icons";
 import { ref, onValue, push, child, update } from "firebase/database";
 import { database } from "../../../../firebase/config";
 import { useAuth } from "../../../hooks";
-import Loader from "../../Loader/Loader";
+import Loader from "../../Loader/ContentLoader";
 import { Comment } from "../../../components/Comment/Comment";
 
 const CommentsScreen = ({ route }) => {
