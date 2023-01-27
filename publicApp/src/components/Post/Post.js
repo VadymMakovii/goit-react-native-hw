@@ -1,4 +1,11 @@
-import { Text, View, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 import { ReviewPhoto } from "../ReviewPhoto/ReviewPhoto";
@@ -13,13 +20,15 @@ export const Post = ({ navigation, data, children }) => {
   const modalShowHandler = () => {
     setIsModalOpen(!isModalOpen);
   };
+
   const { title, location, photo, coordinate, postId, userId } = data.item;
+
   return (
     <View style={styles.container}>
       {children && children}
-      <TouchableOpacity activeOpacity={1} onPress={modalShowHandler}>
+      <Pressable onPress={modalShowHandler}>
         <Image source={{ url: photo }} style={styles.image} />
-      </TouchableOpacity>
+      </Pressable>
       <ReviewPhoto
         data={{ url: photo }}
         onClick={modalShowHandler}

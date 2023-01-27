@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
-import { TouchableOpacity, View, StyleSheet } from "react-native";
+import { TouchableOpacity, View, StyleSheet, Text, Pressable } from "react-native";
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import { Feather } from "@expo/vector-icons";
 import { Slider } from "@miblanchard/react-native-slider";
 import { PreviewPhoto } from "../../PreviewPhoto/PreviewPhoto";
+import {ZoomSlider, ZoomButtons} from '../../CameraControllers/CameraControllers';
+
+const cameraInitialState = {
+  zoom: 0,
+  flashMode: "auto",
+  autoFocus: "on",
+  focusDepth: "0.5",
+  type: "back",
+};
 
 const CameraScreen = ({ navigation }) => {
   const [camera, setCamera] = useState(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
   const [isOpenPreviewPhoto, setIsOpenPreviewPhoto] = useState(false);
   const [state, setState] = useState(null);
-  const [cameraZoom, setCameraZoom] = useState(0);
+  const [cameraState, setCameraState] = useState(cameraInitialState);
   const [status, requestLocationPermission] =
     Location.useForegroundPermissions();
 
@@ -59,6 +68,12 @@ const CameraScreen = ({ navigation }) => {
     setState((prevState) => ({ ...prevState, coordinate }));
   };
 
+  const setCameraZoom = (value) => {
+    setCameraState((prevState) => ({
+      ...prevState, zoom: value/10,
+    }));
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -76,23 +91,12 @@ const CameraScreen = ({ navigation }) => {
         autoFocus="on"
         focusDepth="0.5"
         type="back"
-        zoom={cameraZoom}
+        zoom={cameraState.zoom}
         ref={setCamera}
       />
       <View style={styles.footer}>
-        <Slider
-          value={cameraZoom.toString()}
-          step={0.001}
-          onValueChange={(value) => setCameraZoom(...value)}
-          maximumValue={0.5}
-          minimumValue={0}
-          animateTransitions={true}
-          trackClickable={true}
-          minimumTrackTintColor="#FFFFFF"
-          trackStyle={{ backgroundColor: "#BDBDBD30", height: 3 }}
-          thumbStyle={{ backgroundColor: "#FFFFFF" }}
-          containerStyle={{ width: 150, height: 30, marginBottom: 10 }}
-        />
+        <ZoomSlider value={cameraState.zoom} setCameraState={setCameraState} />
+        <ZoomButtons value={cameraState.zoom} setCameraState={setCameraState}/>
         <TouchableOpacity style={styles.cameraBtn} onPress={takePhoto}>
           <View style={styles.entryBtn}></View>
         </TouchableOpacity>
@@ -155,6 +159,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 2,
     borderColor: "#FFFFFF",
+    marginTop: 20,
   },
   entryBtn: {
     backgroundColor: "#FFFFFF",
