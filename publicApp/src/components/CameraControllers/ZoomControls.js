@@ -1,46 +1,21 @@
 import { View, StyleSheet, Text, Pressable } from "react-native";
-import { Slider } from "@miblanchard/react-native-slider";
 import { useEffect, useState } from "react";
+import { ZoomSlider } from "./ZoomSlider";
 
-export const ZoomSlider = ({ value, setCameraState }) => {
-  const zoomHandler = (value) => {
-    setCameraState((prevState) => ({
-      ...prevState,
-      zoom: Number(value),
-    }));
+export const ZoomControls = ({ setCameraState, value }) => {
+  const [isShowZoomSlider, setIsShowZoomSlider] = useState(false);
+  const [activeButton, setActiveButton] = useState("");
+
+  const onSliderBlur = () => {
+    setTimeout(() => setIsShowZoomSlider(false), 1500);
   };
-  return (
-    <View style={styles.sliderContainer}>
-      <Slider
-        value={value}
-        onValueChange={(value) => {
-          zoomHandler(value);
-        }}
-        minimumValue={0}
-        vertical
-        maximumValue={1}
-        animateTransitions
-        trackClickable
-        minimumTrackTintColor="#FFFFFF"
-        trackStyle={{ backgroundColor: "#BDBDBD30" }}
-        thumbStyle={{ backgroundColor: "#FFFFFF" }}
-      />
-      <View style={styles.currentValueBox}>
-        <Text style={{ color: "#FFFFFF" }}>{value.toFixed(1) * 10}</Text>
-      </View>
-    </View>
-  );
-};
 
-export const ZoomButtons = ({ setCameraState, value }) => {
   const setCameraZoom = (value) => {
     setCameraState((prevState) => ({
       ...prevState,
       zoom: value / 10,
     }));
   };
-
-  const [activeButton, setActiveButton] = useState("");
 
   useEffect(() => {
     if (value <= 0.05) {
@@ -51,7 +26,13 @@ export const ZoomButtons = ({ setCameraState, value }) => {
   }, [value]);
 
   return (
-    <View style={styles.buttonContainer}>
+    <View style={styles.buttonContainer} onTouchEnd={onSliderBlur}>
+      <ZoomSlider
+        value={value}
+        setCameraState={setCameraState}
+        onShow={setIsShowZoomSlider}
+        visible={isShowZoomSlider}
+      />
       <Pressable
         style={
           activeButton === "0"
@@ -59,6 +40,10 @@ export const ZoomButtons = ({ setCameraState, value }) => {
             : { ...styles.button }
         }
         onPress={() => setCameraZoom(0)}
+        onLongPress={() => {
+          setIsShowZoomSlider(true);
+          setCameraZoom(0);
+        }}
       >
         <Text
           style={
@@ -77,6 +62,10 @@ export const ZoomButtons = ({ setCameraState, value }) => {
             : { ...styles.button }
         }
         onPress={() => setCameraZoom(1)}
+        onLongPress={() => {
+          setIsShowZoomSlider(true);
+          setCameraZoom(1);
+        }}
       >
         <Text
           style={
@@ -95,6 +84,10 @@ export const ZoomButtons = ({ setCameraState, value }) => {
             : { ...styles.button }
         }
         onPress={() => setCameraZoom(2)}
+        onLongPress={() => {
+          setIsShowZoomSlider(true);
+          setCameraZoom(2);
+        }}
       >
         <Text
           style={
@@ -114,21 +107,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    justifyContent: "flex-end",
-  },
-  sliderContainer: {
-    position: "absolute",
-    top: "-200%",
-    right: "-20%",
-    width: 200,
-    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
   currentValueBox: {
     alignItems: "center",
     justifyContent: "center",
-    width: 25,
-    height: 25,
-    top: "-150%",
+    width: 40,
+    height: 40,
+    left: -10,
     backgroundColor: "#FFFFFF30",
     borderRadius: 50,
   },
@@ -140,10 +127,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#21212150",
     borderRadius: 26,
     alignItems: "center",
-    justifyContent: "space-evenly",
+    justifyContent: "center",
     flexDirection: "row",
     borderColor: "#FFFFFF20",
     borderWidth: 1,
+    paddingHorizontal: 4,
   },
   button: {
     width: 30,
@@ -152,6 +140,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#21212150",
     alignItems: "center",
     justifyContent: "center",
+    marginHorizontal: 2,
   },
   activeButton: {
     width: 40,
@@ -160,6 +149,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#BDBDBD50",
     alignItems: "center",
     justifyContent: "center",
+    marginHorizontal: 2,
   },
   buttonText: {
     fontFamily: "Roboto-Regular",

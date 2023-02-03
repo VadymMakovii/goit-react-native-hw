@@ -1,0 +1,1 @@
+export const selectIsReviewPhoto = state => state.dashboard.isReviewPhoto;

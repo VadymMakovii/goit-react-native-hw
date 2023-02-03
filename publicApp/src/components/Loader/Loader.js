@@ -1,20 +1,28 @@
-import { useEffect, useRef } from "react";
-import { View, ActivityIndicator, Animated, StyleSheet } from "react-native";
+import { useEffect } from "react";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 export const Loader = (loading) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
-    loading &&
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
+    if (loading) {
+    opacity.value = withSpring(1, { stiffness: 100, damping: 10 });
+    }
   }, [loading]);
 
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    };
+  }, [opacity]);
+
   return (
-    <Animated.View style={{ ...styles.overlay, opacity: fadeAnim }}>
+    <Animated.View style={[styles.overlay, animatedStyle]}>
       <View style={styles.loader}>
         <ActivityIndicator size="large" color="#FF6C00" />
       </View>

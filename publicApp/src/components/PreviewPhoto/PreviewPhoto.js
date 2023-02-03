@@ -1,8 +1,7 @@
-import { View, Image, StyleSheet, Modal, TouchableOpacity } from "react-native";
+import { View, Image, StyleSheet, Modal, TouchableOpacity} from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 export const PreviewPhoto = ({ data, onCancel, onAgree, visible }) => {
-
   return (
     <Modal animationType="fade" transparent={true} visible={visible}>
       <View style={styles.container}>
@@ -15,10 +14,10 @@ export const PreviewPhoto = ({ data, onCancel, onAgree, visible }) => {
             onPress={onCancel}
           />
         </View>
-        <Image
+         <Image
           source={{uri: data}}
           style={{ flex: 1 }}
-          resizeMode={"contain"}
+          resizeMode={"cover"}
           objectFit={"fill"}
         />
         <View style={styles.footer}>
@@ -40,23 +39,20 @@ export const PreviewPhoto = ({ data, onCancel, onAgree, visible }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#000000",
     justifyContent: "center",
   },
   header: {
-    position: "absolute",
-    zIndex: 1,
     top: 0,
     width: "100%",
     height: 100,
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "flex-start ",
-    backgroundColor: "#00000090",
+    backgroundColor: "#000000",
     paddingBottom: 20,
   },
   footer: {
-    position: "absolute",
     bottom: 0,
     left: 0,
     width: "100%",
@@ -65,8 +61,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 40,
-    height: 100,
-    backgroundColor: "#00000090",
+    height: 150,
+    backgroundColor: "#000000",
   },
   cancelBtn: {
     width: 60,

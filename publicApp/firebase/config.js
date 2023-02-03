@@ -4,13 +4,13 @@ import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDJ1dLPGqi7yw1l89FQ2M7EFviHDnTODoo",
-  authDomain: "photohub-2b74b.firebaseapp.com",
-  databaseURL: "https://photohub-2b74b-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "photohub-2b74b",
-  storageBucket: "photohub-2b74b.appspot.com",
-  messagingSenderId: "633366405427",
-  appId: "1:633366405427:web:4d6cf71fe75a7d1f85de46"
+  apiKey: "AIzaSyA1PbQzefJ7OHwXrabL9k9ZO4wlETKx4zk",
+  authDomain: "photohubview.firebaseapp.com",
+  databaseURL: "https://photohubview-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "photohubview",
+  storageBucket: "photohubview.appspot.com",
+  messagingSenderId: "1027856164514",
+  appId: "1:1027856164514:web:965ed94a2000291dd9d9fb"
 };
 
 const app = initializeApp(firebaseConfig);

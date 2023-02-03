@@ -19,13 +19,14 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     marginBottom: 32,
+    marginHorizontal: 16,
   },
   avatar: {
     width: 60,
     height: 60,
     borderRadius: 16,
     marginRight: 8,
-    backgroundColor: "#F6F6F6",
+    backgroundColor: "#BDBDBD50",
   },
   userData: {
     flexDirection: "column",

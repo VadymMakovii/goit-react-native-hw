@@ -1,64 +1,41 @@
 import {
-  Text,
   View,
-  Image,
   StyleSheet,
-  TouchableOpacity,
   Pressable,
+  Image,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 import { ReviewPhoto } from "../ReviewPhoto/ReviewPhoto";
+import { PostFooter } from "./PostFooter";
+import { setIsReviewPhoto } from '../../redux/dashboard/dashboardSlice';
+import { useDispatch, useSelector } from "react-redux";
+import {selectIsReviewPhoto} from "../../redux/dashboard/dashboardSelectors"; 
 
 export const Post = ({ navigation, data, children }) => {
-  const commentsAmount = data.item.comments
-    ? Object.keys(data.item.comments).length
-    : 0;
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const dispatch = useDispatch();
+  const isPreviewActive = useSelector(selectIsReviewPhoto);
+
   const modalShowHandler = () => {
+    dispatch(setIsReviewPhoto(!isPreviewActive));
     setIsModalOpen(!isModalOpen);
   };
-
-  const { title, location, photo, coordinate, postId, userId } = data.item;
 
   return (
     <View style={styles.container}>
       {children && children}
-      <Pressable onPress={modalShowHandler}>
-        <Image source={{ url: photo }} style={styles.image} />
+      <Pressable style={styles.imageBox} onPress={modalShowHandler}>
+        <Image source={{ url: data.item.photo }}
+            style={styles.image}
+            resizeMode={"cover"} />
       </Pressable>
       <ReviewPhoto
-        data={{ url: photo }}
-        onClick={modalShowHandler}
-        visible={isModalOpen}
-      />
-      <Text style={styles.title}>{title}</Text>
-      <View style={styles.contentBox}>
-        <View style={styles.commentsBox}>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("Comments", { photo, postId, userId })
-            }
-          >
-            <Feather
-              name="message-circle"
-              size={24}
-              style={styles.messageIcon}
-            />
-          </TouchableOpacity>
-          <Text style={styles.commentsCounter}>{commentsAmount}</Text>
-        </View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Map", { coordinate })}
-        >
-          <View style={styles.locationBox}>
-            <Feather name="map-pin" size={24} style={styles.mapIcon} />
-            <Text style={styles.location}>{location}</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+            data={data}
+            onClick={modalShowHandler}
+            visible={isModalOpen}
+          />
+      <PostFooter navigation={navigation} data={data} />
     </View>
   );
 };
@@ -66,57 +43,18 @@ export const Post = ({ navigation, data, children }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    marginHorizontal: 16,
     marginTop: 32,
   },
-  image: {
+  imageBox: {
     height: 240,
     borderRadius: 8,
     backgroundColor: "#F6F6F6",
+    marginHorizontal: 16,
+    zIndex: 4,
+    overflow: "hidden",
   },
-  title: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 16,
-    lineHeight: 19,
-    marginVertical: 8,
-  },
-  contentBox: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  commentsBox: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    marginRight: 20,
-  },
-  messageIcon: {
-    color: "#BDBDBD",
-    marginRight: 6,
-  },
-  commentsCounter: {
-    fontFamily: "Roboto-Regular",
-    fontSize: 16,
-    lineHeight: 19,
-    color: "#BDBDBD",
-  },
-  locationBox: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    maxWidth: 270,
-  },
-  mapIcon: {
-    color: "#BDBDBD",
-    marginRight: 4,
-  },
-  location: {
-    fontFamily: "Roboto-Regular",
-    fontSize: 16,
-    lineHeight: 19,
-    textDecorationLine: "underline",
-    flexWrap: "wrap",
-  },
+  image: {
+    flex: 1,
+
+  }
 });

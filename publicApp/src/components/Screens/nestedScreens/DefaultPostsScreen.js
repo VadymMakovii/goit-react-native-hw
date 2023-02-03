@@ -1,20 +1,39 @@
 import { useEffect, useState } from "react";
-import { View, FlatList, StyleSheet, Image, Text } from "react-native";
+import { View, FlatList, StyleSheet, Text, SafeAreaView } from "react-native";
 import { Post } from "../../Post/Post";
 import { Feather } from "@expo/vector-icons";
 import { ref, onValue } from "firebase/database";
 import { database } from "../../../../firebase/config";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../../../redux/auth/authOperations";
 import { useAuth } from "../../../hooks";
-import {UserCard} from "../../UserCard/UserCard";
+import { UserCard } from "../../UserCard/UserCard";
+import {selectIsReviewPhoto} from "../../../redux/dashboard/dashboardSelectors"; 
 
 const PostsScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
+  const isPreviewActive = useSelector(selectIsReviewPhoto);
 
   useEffect(() => {
     getAllPosts();
   }, []);
 
+  const dispatch = useDispatch();
+
+  const handleLogOut = () => {
+    dispatch(logoutUser());
+  };
+
   const { userName, avatar, email } = useAuth();
+
+  const data = {
+    item: {
+      userAvatar: avatar,
+      userEmail: email,
+      userName: userName,
+    },
+  };
+
   const getAllPosts = () => {
     const postRef = ref(database, "/posts/");
 
@@ -32,26 +51,36 @@ const PostsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {posts.length < 1 ? (
-        <View style={styles.welcomeBox}>
-          <View style={styles.userBox}>
-            <Image source={{ url: avatar }} style={styles.avatar} />
-            <View style={styles.userData}>
-              <Text style={styles.userName}>{userName}</Text>
-              <Text style={styles.userEmail}>{email}</Text>
-            </View>
-          </View>
-          <Text style={styles.title}>
-            Create your first post and share it with your friends!!!
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={posts}
-          renderItem={(item) => (<Post data={item} navigation={navigation}><UserCard data={item} /></Post>)}
-          keyExtractor={(item) => item.postId}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Posts</Text>
+        <Feather
+          name="log-out"
+          size={24}
+          color="#BDBDBD"
+          style={{ marginHorizontal: 32 }}
+          onPress={handleLogOut}
         />
-      )}
+      </View>
+      <View style={styles.mainSection}>
+        {posts.length < 1 ? (
+          <View style={styles.welcomeBox}>
+            <UserCard data={data} />
+            <Text style={styles.title}>
+              Create your first post and share it with your friends!!!
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={posts}
+            renderItem={(item) => (
+              <Post data={item} navigation={navigation}>
+                <UserCard data={item} />
+              </Post>
+            )}
+            keyExtractor={(item) => item.postId}
+          />
+        )}
+      </View>
       <View style={styles.footer}>
         <View style={styles.item}>
           <Feather
@@ -93,8 +122,35 @@ const styles = StyleSheet.create({
   welcomeBox: {
     flex: 1,
     paddingTop: 32,
-    paddingHorizontal: 16,
     justifyContent: "flex-start",
+  },
+  title: {
+    fontFamily: "Roboto-Bold",
+    fontSize: 18,
+    lineHeight: 30,
+    textAlign: "center",
+    marginHorizontal: 16,
+  },
+  header: {
+    top: 0,
+    width: "100%",
+    height: 90,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "flex-end",
+    borderBottomWidth: 1,
+    borderBottomColor: "#BDBDBD30",
+    paddingBottom: 11,
+  },
+  headerTitle: {
+    fontFamily: "Roboto-Medium",
+    fontSize: 17,
+    lineHeight: 22,
+    color: "#212121",
+    marginRight: 80,
+  },
+  mainSection: {
+    flex: 1,
   },
   footer: {
     bottom: 0,
@@ -122,39 +178,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 20,
-  },
-  userBox: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    marginRight: 8,
-    backgroundColor: "#BDBDBD50",
-  },
-  userData: {
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-  },
-  userName: {
-    fontFamily: "Roboto-Bold",
-    fontSize: 13,
-    lineHeight: 15,
-  },
-  userEmail: {
-    fontFamily: "Roboto-Regular",
-    fontSize: 11,
-    lineHeight: 13,
-  },
-  title: {
-    fontFamily: "Roboto-Bold",
-    fontSize: 18,
-    lineHeight: 30,
-    textAlign: "center",
   },
 });

@@ -9,7 +9,6 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
 } from "react-native";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as db from "firebase/database";
@@ -17,9 +16,9 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { storage, database } from "../../../../../firebase/config";
 import { nanoid } from "nanoid";
-import { useAuth } from "../../../../hooks";
-import { ReviewPhoto } from "../../../ReviewPhoto/ReviewPhoto";
+import { useAuth, useAlert } from "../../../../hooks";
 import styles from "./DefaultCreatePostScreen.styles";
+import { Loader } from "../../../Loader/Loader";
 
 const initialState = {
   title: "",
@@ -31,12 +30,8 @@ const initialState = {
 const DefaultCreatePostScreen = ({ navigation, route }) => {
   const [state, setState] = useState(initialState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { uid, userName, avatar, email } = useAuth();
-
-  const modalShowHandler = () => {
-    setIsModalOpen(!isModalOpen);
-  };
 
   useEffect(() => {
     const keyboardHideHandler = Keyboard.addListener("keyboardDidHide", () =>
@@ -59,7 +54,7 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [16, 9],
       quality: 0.1,
     });
     !result.canceled &&
@@ -74,12 +69,10 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
   };
 
   const sendPost = async () => {
+    setIsLoading(true);
     await uploadPostToServer();
     navigation.navigate("Default posts");
-  };
-
-  const formSubmitHandler = () => {
-    sendPost();
+    setIsLoading(false);
     setState(initialState);
   };
 
@@ -99,6 +92,7 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
   };
 
   const uploadPostToServer = async () => {
+    try {
     const photo = await uploadPhotoToServer();
     const { title, location, coordinate } = state;
     const postData = {
@@ -111,12 +105,14 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
       coordinate: coordinate,
       photo: photo,
     };
-
     const newPostKey = db.push(db.child(db.ref(database), "posts")).key;
     const updates = {};
     updates["/posts/" + newPostKey] = postData;
     updates["/user-posts/" + uid + "/" + newPostKey] = postData;
     db.update(db.ref(database), updates);
+    } catch (error) {
+      useAlert("Something went wrong! Please try again later!");
+    }
   };
 
   const deletePostData = () => {
@@ -126,6 +122,7 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
   return (
     <TouchableWithoutFeedback onPress={keyboardDismiss}>
       <View style={styles.container}>
+        {isLoading && <Loader loading={isLoading} />}
         <View style={styles.header}>
           <Feather
             name="arrow-left"
@@ -138,18 +135,11 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
         </View>
         <View style={styles.imageBox}>
           {state.pictureURL && (
-            <Pressable style={styles.image} onPress={modalShowHandler}>
               <Image
                 source={{ uri: state.pictureURL }}
                 style={styles.image}
                 resizeMode={"cover"}
               />
-              <ReviewPhoto
-                data={{ uri: state.pictureURL }}
-                onClick={modalShowHandler}
-                visible={isModalOpen}
-              />
-            </Pressable>
           )}
           <TouchableOpacity
             style={{
@@ -202,7 +192,7 @@ const DefaultCreatePostScreen = ({ navigation, route }) => {
         <TouchableOpacity
           style={styles.button}
           activeOpacity={0.7}
-          onPress={() => formSubmitHandler()}
+          onPress={() => sendPost()}
         >
           <Text style={styles.buttonText}>publish</Text>
         </TouchableOpacity>

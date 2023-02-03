@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
-import { TouchableOpacity, View, StyleSheet, Text, Pressable } from "react-native";
+import { TouchableOpacity, View, StyleSheet } from "react-native";
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
-import { Feather } from "@expo/vector-icons";
-import { Slider } from "@miblanchard/react-native-slider";
+import {Feather} from "@expo/vector-icons";
 import { PreviewPhoto } from "../../PreviewPhoto/PreviewPhoto";
-import {ZoomSlider, ZoomButtons} from '../../CameraControllers/CameraControllers';
+import { manipulateAsync } from "expo-image-manipulator";
+import {ZoomControls} from "../../CameraControllers/ZoomControls";
+import { CameraControls } from "../../CameraControllers/CameraControls";
+import { useAlert } from "../../../hooks";
 
 const cameraInitialState = {
   zoom: 0,
   flashMode: "auto",
   autoFocus: "on",
-  focusDepth: "0.5",
   type: "back",
+  quality: { value: 0.5, name: "quality-medium" },
 };
 
 const CameraScreen = ({ navigation }) => {
@@ -23,23 +25,25 @@ const CameraScreen = ({ navigation }) => {
   const [cameraState, setCameraState] = useState(cameraInitialState);
   const [status, requestLocationPermission] =
     Location.useForegroundPermissions();
-
-  const getPermission = async () => {
-    if (!hasCameraPermission) {
-      try {
-        const { status } = await Camera.requestCameraPermissionsAsync();
-        setHasCameraPermission(status === "granted");
-      } catch (error) {
-        console.log("error", error);
-      }
-    }
-    if (!status) {
-      requestLocationPermission();
-    }
-  };
-
+  
   useEffect(() => {
-    getPermission();
+    (async () => {
+      if (!hasCameraPermission) {
+        try {
+          const { status } = await Camera.requestCameraPermissionsAsync();
+          setHasCameraPermission(status === "granted");
+        } catch (error) {
+          useAlert(error.message);
+        }
+      }
+      if (!status) {
+        try {
+          await requestLocationPermission();
+        } catch (error) {
+          useAlert(error.message);
+        }
+      }
+    })();
   }, []);
 
   const acceptPhoto = () => {
@@ -58,7 +62,10 @@ const CameraScreen = ({ navigation }) => {
 
   const takePhoto = async () => {
     const photo = await camera.takePictureAsync();
-    setState((prevState) => ({ ...prevState, pictureURL: photo.uri }));
+    const manipResult = await manipulateAsync(photo.uri, [], {
+      compress: cameraState.quality.value,
+    });
+    setState((prevState) => ({ ...prevState, pictureURL: manipResult.uri }));
     setIsOpenPreviewPhoto(true);
     const location = await Location.getCurrentPositionAsync();
     const coordinate = {
@@ -66,12 +73,6 @@ const CameraScreen = ({ navigation }) => {
       longitude: location.coords.longitude,
     };
     setState((prevState) => ({ ...prevState, coordinate }));
-  };
-
-  const setCameraZoom = (value) => {
-    setCameraState((prevState) => ({
-      ...prevState, zoom: value/10,
-    }));
   };
 
   return (
@@ -84,29 +85,32 @@ const CameraScreen = ({ navigation }) => {
           style={{ marginHorizontal: 16 }}
           onPress={() => navigation.goBack()}
         />
+        <CameraControls state={cameraState} onClick={setCameraState}/>
       </View>
       <Camera
         style={styles.camera}
-        flashMode="auto"
-        autoFocus="on"
-        focusDepth="0.5"
-        type="back"
+        flashMode={cameraState?.flashMode}
+        autoFocus={cameraState.autoFocus}
         zoom={cameraState.zoom}
+        type={cameraState.type}
+        whiteBalance="auto"
+        ratio="16:9"
         ref={setCamera}
       />
       <View style={styles.footer}>
-        <ZoomSlider value={cameraState.zoom} setCameraState={setCameraState} />
-        <ZoomButtons value={cameraState.zoom} setCameraState={setCameraState}/>
+        <ZoomControls value={cameraState.zoom} setCameraState={setCameraState} />
         <TouchableOpacity style={styles.cameraBtn} onPress={takePhoto}>
           <View style={styles.entryBtn}></View>
         </TouchableOpacity>
       </View>
-      <PreviewPhoto
-        data={state?.pictureURL}
-        onCancel={cancelPhoto}
-        onAgree={acceptPhoto}
-        visible={isOpenPreviewPhoto}
-      />
+      {state?.pictureURL && (
+        <PreviewPhoto
+          data={state.pictureURL}
+          onCancel={cancelPhoto}
+          onAgree={acceptPhoto}
+          visible={isOpenPreviewPhoto}
+        />
+      )}
     </View>
   );
 };
@@ -120,20 +124,16 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   header: {
-    position: "absolute",
-    zIndex: 1,
     top: 0,
     width: "100%",
     height: 100,
     flexDirection: "row",
     alignItems: "flex-end",
-    justifyContent: "flex-start ",
-    backgroundColor: "#00000090",
+    justifyContent: "space-between",
+    backgroundColor: "#000000",
     paddingBottom: 20,
   },
   footer: {
-    position: "absolute",
-    zIndex: 1,
     bottom: 0,
     left: 0,
     width: "100%",
@@ -142,10 +142,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     height: 150,
-    backgroundColor: "#00000090",
+    backgroundColor: "#000000",
   },
   camera: {
-    height: "100%",
+    flex: 1,
     alignItems: "center",
     justifyContent: "flex-end",
     backgroundColor: "#F6F6F6",

@@ -3,19 +3,11 @@ import { Feather } from "@expo/vector-icons";
 import DefaultPostsScreen from "../../nestedScreens/DefaultPostsScreen";
 import MapScreen from "../../nestedScreens/MapScreen";
 import CommentsScreen from "../../nestedScreens/CommentsScreen";
-import { useDispatch } from "react-redux";
-import { logoutUser } from "../../../../redux/auth/authOperations";
 
 
 const PostStack = createNativeStackNavigator();
 
 const PostsScreen = ({ navigation }) => {
-  const dispatch = useDispatch();
-
-  const handleLogOut = () => {
-    dispatch(logoutUser());
-  };
-
   return (
     <PostStack.Navigator
       initialRouteName="Default posts"
@@ -27,16 +19,8 @@ const PostsScreen = ({ navigation }) => {
         name="Default posts"
         component={DefaultPostsScreen}
         options={{
-          title: "Posts",
-          headerRight: () => (
-            <Feather
-              name="log-out"
-              size={24}
-              color="#BDBDBD"
-              style={{ marginHorizontal: 16 }}
-              onPress={handleLogOut}
-            />
-          ),
+          headerShown: false,
+          headerBackTitleVisible: false,
         }}
       />
       <PostStack.Screen
