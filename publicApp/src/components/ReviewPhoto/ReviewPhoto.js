@@ -1,10 +1,12 @@
 import Animated, {
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
+  withDecay,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { StyleSheet, Modal, Dimensions, View } from "react-native";
+import { StyleSheet, Modal, Dimensions } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
@@ -21,6 +23,7 @@ export const ReviewPhoto = ({ data, onClick, visible }) => {
   const previousScale = useSharedValue(1);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  const originalTranslateY = useSharedValue(0);
   const previousX = useSharedValue(0);
   const previousY = useSharedValue(0);
   const bgColor = useSharedValue("#000000");
@@ -38,40 +41,68 @@ export const ReviewPhoto = ({ data, onClick, visible }) => {
     onClick();
   };
 
+  const MAX_TRANSLATE_X = -WIDTH * (scale.value - 1) / 2;
+  const MIN_TRANSLATE_X = WIDTH * (scale.value - 1) / 2;
+  const trXCorrection = WIDTH * (scale.value - 1);
+
+const MAX_TRANSLATE_Y = -HEIGHT * (scale.value - 1) / 2;
+const MIN_TRANSLATE_Y = HEIGHT * (scale.value - 1) / 2;
+const trYCorrection = HEIGHT * (scale.value - 1);
+
+  const totalTranslateX = useDerivedValue(() => {
+    if (scale.value <= 1) {
+      return 0
+    }
+    return Math.max(Math.min(translateX.value, MIN_TRANSLATE_X), MAX_TRANSLATE_X);
+  });
+
+  const totalTranslateY = useDerivedValue(() => {
+    if (scale.value <= 1) {
+      return 0
+    }
+    return Math.max(Math.min(translateY.value, MIN_TRANSLATE_Y), MAX_TRANSLATE_Y);
+  });
+
   const panGesture = Gesture.Pan()
     .enabled(isPanEnabled)
     .onBegin(() => {
       if (scale.value === 1) {
         previousX.value = 0;
         previousY.value = 0;
+      } else {
+        previousX.value = totalTranslateX.value;
+        previousY.value = totalTranslateY.value;
       }
     })
     .onUpdate((e) => {
       if (scale.value > 1) {
+        originalTranslateY.value = totalTranslateY.value;
         translateX.value = previousX.value + e.translationX;
         translateY.value = previousY.value + e.translationY;
       }
       if (scale.value === 1) {
+        originalTranslateY.value = e.translationY;
         translateY.value = e.translationY;
-        if (translateY.value > 20 || translateY.value < -20) {
-          bgColor.value = "#00000080";
-        }
-        if (translateY.value > 100 || translateY.value < -100) {
-          bgColor.value = "#00000030";
+        bgColor.value = `#000000${
+          99 - Math.trunc(Math.abs(e.translationY) / 3)
+        }`;
+        if (originalTranslateY.value !== 0) {
+          setHeaderShow(false);
         }
       }
     })
     .onEnd((e) => {
       if (scale.value > 1) {
-        previousX.value = translateX.value;
-        previousY.value = translateY.value;
+        translateX.value = withDecay({ velocity: e.velocityX / 2 });
+        translateY.value = withDecay({ velocity: e.velocityY / 2 });
         return;
       }
       if (e.translationY < 300 || e.translationY > -300) {
         scale.value = withSpring(1, { stiffness: 150, damping: 25 });
         translateX.value = withSpring(0, { stiffness: 150, damping: 25 });
         translateY.value = withSpring(0, { stiffness: 150, damping: 25 });
-        bgColor.value = withSpring("#000000");
+        originalTranslateY.value = withSpring(0, { stiffness: 150, damping: 25 });
+        bgColor.value = "#000000";
       }
       if (
         (scale.value === 1 && translateY.value > 250) ||
@@ -82,7 +113,7 @@ export const ReviewPhoto = ({ data, onClick, visible }) => {
     });
 
   const pinchGesture = Gesture.Pinch()
-    .onBegin((e) => {
+    .onBegin(() => {
       setIsPanEnabled(false);
       if (scale.value === 1) {
         previousScale.value = 1;
@@ -90,13 +121,10 @@ export const ReviewPhoto = ({ data, onClick, visible }) => {
     })
     .onUpdate((e) => {
       if (scale.value <= 3 || e.scale < 1) {
-      scale.value = e.scale * previousScale.value;
-      focalX.value = e.focalX;
+        scale.value = e.scale * previousScale.value;
+        focalX.value = e.focalX;
         focalY.value = e.focalY;
-        console.log("EEE", e)
       }
-      // fixed focal!!!!!
-
     })
     .onEnd((e) => {
       if (scale.value < 1) {
@@ -105,6 +133,7 @@ export const ReviewPhoto = ({ data, onClick, visible }) => {
         focalY.value = withSpring(0, { stiffness: 150, damping: 25 });
         translateX.value = withSpring(0, { stiffness: 150, damping: 25 });
         translateY.value = withSpring(0, { stiffness: 150, damping: 25 });
+        originalTranslateY.value = withSpring(0, { stiffness: 150, damping: 25 });
         bgColor.value = withSpring("#000000");
       }
       if (e.scale > 1) {
@@ -112,18 +141,19 @@ export const ReviewPhoto = ({ data, onClick, visible }) => {
       } else {
         previousScale.value = 1;
       }
-      
       setIsPanEnabled(true);
     });
 
   const tapGesture = Gesture.Tap().onTouchesUp(() => {
-    setHeaderShow(!headerShow);
-    if (headerShow) {
-      headerTranslateY.value = withTiming(0);
-      footerTranslateY.value = withTiming(0);
-    } else {
-      headerTranslateY.value = withTiming(-100);
-      footerTranslateY.value = withTiming(100);
+    if (scale.value === 1) {
+      setHeaderShow(!headerShow);
+      if (headerShow) {
+        headerTranslateY.value = withTiming(0);
+        footerTranslateY.value = withTiming(0);
+      } else {
+        headerTranslateY.value = withTiming(-100);
+        footerTranslateY.value = withTiming(100);
+      }
     }
   });
 
@@ -146,11 +176,11 @@ export const ReviewPhoto = ({ data, onClick, visible }) => {
   const animatedStyleImageBox = useAnimatedStyle(() => {
     return {
       transform: [
-        { translateX: translateX.value },
-        { translateY: translateY.value },
+        { translateX: totalTranslateX.value + trXCorrection},
+        { translateY: originalTranslateY.value},
       ],
     };
-  }, [translateX, translateY]);
+  }, [totalTranslateX, totalTranslateY]);
 
   const animatedStyleView = useAnimatedStyle(() => {
     return {
@@ -233,10 +263,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#00000030",
   },
 });
-
-
-
-
 
 
 
